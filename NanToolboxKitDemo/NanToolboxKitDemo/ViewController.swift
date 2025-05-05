@@ -10,10 +10,11 @@ import NanToolboxKit
 
 class ViewController: UIViewController {
     
-    // 添加两个计数器
+    // 添加计数器和性能测试相关属性
     private var autoLogCount: Int = 0    // 自动写入计数
     private var manualLogCount: Int = 0  // 手动写入计数
     private var logTimer: Timer?
+    private var startTime: CFAbsoluteTime = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,53 +35,79 @@ class ViewController: UIViewController {
     }
     
     private func setupTestButtons() {
-        // 开始测试按钮
-        let startButton = UIButton(frame: CGRect(x: 50, y: 100, width: 200, height: 50))
-        startButton.setTitle("开始频繁写入日志", for: .normal)
-        startButton.setTitleColor(.blue, for: .normal)
+        // 性能测试按钮
+        let performanceButton = UIButton(frame: CGRect(x: 50, y: 100, width: 200, height: 50))
+        performanceButton.setTitle("性能测试(1万条)", for: .normal)
+        performanceButton.setTitleColor(.blue, for: .normal)
+        performanceButton.addTarget(self, action: #selector(performanceTest), for: .touchUpInside)
+        view.addSubview(performanceButton)
+        
+        // 连续写入按钮
+        let startButton = UIButton(frame: CGRect(x: 50, y: 170, width: 200, height: 50))
+        startButton.setTitle("开始连续写入", for: .normal)
+        startButton.setTitleColor(.green, for: .normal)
         startButton.addTarget(self, action: #selector(startLoggingTest), for: .touchUpInside)
         view.addSubview(startButton)
         
-        // 停止测试按钮
-        let stopButton = UIButton(frame: CGRect(x: 50, y: 170, width: 200, height: 50))
-        stopButton.setTitle("停止写入日志", for: .normal)
+        // 停止按钮
+        let stopButton = UIButton(frame: CGRect(x: 50, y: 240, width: 200, height: 50))
+        stopButton.setTitle("停止写入", for: .normal)
         stopButton.setTitleColor(.red, for: .normal)
         stopButton.addTarget(self, action: #selector(stopLoggingTest), for: .touchUpInside)
         view.addSubview(stopButton)
+    }
+    
+    @objc private func performanceTest() {
+        startTime = CFAbsoluteTimeGetCurrent()
         
-        // 单次写入按钮
-        let singleButton = UIButton(frame: CGRect(x: 50, y: 240, width: 200, height: 50))
-        singleButton.setTitle("写入一条测试日志", for: .normal)
-        singleButton.setTitleColor(.green, for: .normal)
-        singleButton.addTarget(self, action: #selector(writeSingleLog), for: .touchUpInside)
-        view.addSubview(singleButton)
+        // 在后台队列执行，避免阻塞主线程
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            // 写入1万条日志
+            for i in 1...10000 {
+                let memory = self?.getMemoryUsage() ?? (0, 0)
+                SNPLogManager.shared.writeLog(log: "性能测试 #\(i) - 内存: \(memory)MB")
+            }
+            
+            // 计算耗时
+            let timeElapsed = CFAbsoluteTimeGetCurrent() - (self?.startTime ?? 0)
+            DispatchQueue.main.async {
+                print("性能测试完成：")
+                print("总耗时: \(String(format: "%.3f", timeElapsed))秒")
+                print("平均每条日志耗时: \(String(format: "%.3f", timeElapsed/10000*1000))毫秒")
+            }
+        }
     }
     
     @objc private func startLoggingTest() {
-        // 停止现有定时器
-        stopLoggingTest()
+        stopLoggingTest() // 先停止现有的
+        startTime = CFAbsoluteTimeGetCurrent()
         
-        // 每0.1秒写入一条日志
-        logTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
+        // 每0.01秒写入一条日志
+        logTimer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { [weak self] _ in
             self?.writeAutoLog()
         }
-        print("开始频繁写入日志测试")
+        print("开始连续写入测试")
     }
     
     @objc private func stopLoggingTest() {
         logTimer?.invalidate()
         logTimer = nil
-        print("停止写入日志测试，自动写入\(autoLogCount)条，手动写入\(manualLogCount)条，总计\(autoLogCount + manualLogCount)条日志")
+        
+        let timeElapsed = CFAbsoluteTimeGetCurrent() - startTime
+        print("停止写入测试：")
+        print("写入数量: \(autoLogCount)条")
+        print("总耗时: \(String(format: "%.3f", timeElapsed))秒")
+        if autoLogCount > 0 {
+            print("平均每条日志耗时: \(String(format: "%.3f", timeElapsed/Double(autoLogCount)*1000))毫秒")
+        }
+        
         autoLogCount = 0
-        manualLogCount = 0
     }
     
-    @objc private func writeSingleLog() {
-        manualLogCount += 1
-        let timestamp = Date().timeIntervalSince1970
+    private func writeAutoLog() {
+        autoLogCount += 1
         let memory = getMemoryUsage()
-        SNPLogManager.shared.writeLog(log: "手动测试日志 #\(manualLogCount) - 时间戳: \(timestamp) - 内存使用: \(memory.physical)MB, 虚拟内存: \(memory.virtual)MB")
-        print("写入一条测试日志")
+        SNPLogManager.shared.writeLog(log: "连续测试 #\(autoLogCount) - 物理内存: \(memory.physical)MB, 虚拟内存: \(memory.virtual)MB")
     }
     
     private func getMemoryUsage() -> (physical: Float, virtual: Float) {
@@ -97,18 +124,11 @@ class ViewController: UIViewController {
         }
         
         if kerr == KERN_SUCCESS {
-            let physical = Float(info.resident_size) / 1024.0 / 1024.0  // 物理内存
-            let virtual = Float(info.virtual_size) / 1024.0 / 1024.0    // 虚拟内存
+            let physical = Float(info.resident_size) / 1024.0 / 1024.0
+            let virtual = Float(info.virtual_size) / 1024.0 / 1024.0
             return (physical, virtual)
         }
         return (0, 0)
-    }
-    
-    private func writeAutoLog() {
-        autoLogCount += 1
-        let timestamp = Date().timeIntervalSince1970
-        let memory = getMemoryUsage()
-        SNPLogManager.shared.writeLog(log: "自动测试日志 #\(autoLogCount) - 时间戳: \(timestamp) - 物理内存: \(memory.physical)MB, 虚拟内存: \(memory.virtual)MB")
     }
     
     deinit {

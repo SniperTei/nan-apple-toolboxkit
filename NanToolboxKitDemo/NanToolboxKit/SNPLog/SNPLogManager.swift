@@ -55,6 +55,49 @@ public class SNPLogManager {
     private let flushInterval: TimeInterval = 5  // 5秒未达到条数也写入
     private var lastFlushTime: Date = Date()
     
+    // MARK: - C函数声明
+    private enum CLogger {
+        private static let BUFFER_SIZE = 64 * 1024  // 64KB buffer
+        
+        typealias LoggerRef = UnsafeMutableRawPointer
+        
+        static func create(path: String) -> LoggerRef? {
+            path.withCString { pathPtr in
+                snp_log_create(pathPtr)
+            }
+        }
+        
+        static func write(_ logger: LoggerRef, _ content: String) {
+            content.withCString { contentPtr in
+                snp_log_write(logger, contentPtr, strlen(contentPtr))
+            }
+        }
+        
+        static func flush(_ logger: LoggerRef) {
+            snp_log_flush(logger)
+        }
+        
+        static func destroy(_ logger: LoggerRef) {
+            snp_log_destroy(logger)
+        }
+        
+        // C函数链接
+        @_silgen_name("snp_log_create")
+        private static func snp_log_create(_ path: UnsafePointer<Int8>!) -> LoggerRef!
+        
+        @_silgen_name("snp_log_write")
+        private static func snp_log_write(_ logger: LoggerRef!, _ content: UnsafePointer<Int8>!, _ length: Int) -> Int32
+        
+        @_silgen_name("snp_log_flush")
+        private static func snp_log_flush(_ logger: LoggerRef!)
+        
+        @_silgen_name("snp_log_destroy")
+        private static func snp_log_destroy(_ logger: LoggerRef!)
+    }
+    
+    // MARK: - 私有属性
+    private var logger: CLogger.LoggerRef?
+    
     // 初始化 传SNPLogConfig参数
     public init(config: SNPLogConfig) {
         logFilePath = config.logFilePath
@@ -71,6 +114,11 @@ public class SNPLogManager {
         }
         // 打印日志文件路径
         print("日志文件路径: \(logFilePath)")
+        
+        // 创建日志写入器
+        let currentFileName = getCurrentLogFileName()
+        let logFilePath = (self.logFilePath as NSString).appendingPathComponent(currentFileName)
+        logger = CLogger.create(path: logFilePath)
         
         // 启动定时器，定期刷新缓冲区
         startFlushTimer()
@@ -94,33 +142,12 @@ public class SNPLogManager {
     }
     
     private func flushBuffer() {
-        guard !logBuffer.isEmpty else { return }
+        guard !logBuffer.isEmpty, let logger = logger else { return }
         
-        let currentFileName = getCurrentLogFileName()
-        let logFilePath = (self.logFilePath as NSString).appendingPathComponent(currentFileName)
+        let logData = logBuffer.joined()
+        CLogger.write(logger, logData)
+        CLogger.flush(logger)
         
-        // 如果文件路径变化，需要重新打开文件
-        if currentLogPath != logFilePath {
-            fileHandle?.closeFile()
-            fileHandle = nil
-            currentLogPath = logFilePath
-            
-            if !FileManager.default.fileExists(atPath: logFilePath) {
-                FileManager.default.createFile(atPath: logFilePath, contents: nil, attributes: nil)
-            }
-        }
-        
-        // 懒加载方式打开文件
-        if fileHandle == nil {
-            fileHandle = FileHandle(forWritingAtPath: logFilePath)
-            fileHandle?.seekToEndOfFile()
-        }
-        
-        // 批量写入
-        let logData = logBuffer.joined().data(using: .utf8)!
-        fileHandle?.write(logData)
-        
-        // 清空缓冲区
         logBuffer.removeAll()
         lastFlushTime = Date()
     }
@@ -159,9 +186,8 @@ public class SNPLogManager {
     }
     
     deinit {
-        logQueue.sync {
-            flushBuffer()
-            fileHandle?.closeFile()
+        if let logger = logger {
+            CLogger.destroy(logger)
         }
     }
 }
