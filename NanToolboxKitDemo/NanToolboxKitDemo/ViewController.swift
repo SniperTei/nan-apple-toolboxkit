@@ -55,6 +55,13 @@ class ViewController: UIViewController {
         stopButton.setTitleColor(.red, for: .normal)
         stopButton.addTarget(self, action: #selector(stopLoggingTest), for: .touchUpInside)
         view.addSubview(stopButton)
+        
+        // 添加并发测试按钮
+        let concurrentButton = UIButton(frame: CGRect(x: 50, y: 310, width: 200, height: 50))
+        concurrentButton.setTitle("并发写入测试", for: .normal)
+        concurrentButton.setTitleColor(.purple, for: .normal)
+        concurrentButton.addTarget(self, action: #selector(concurrentTest), for: .touchUpInside)
+        view.addSubview(concurrentButton)
     }
     
     @objc private func performanceTest() {
@@ -129,6 +136,103 @@ class ViewController: UIViewController {
             return (physical, virtual)
         }
         return (0, 0)
+    }
+    
+    @objc private func concurrentTest() {
+        print("开始并发写入测试")
+        startTime = CFAbsoluteTimeGetCurrent()
+        
+        // 创建5个并发队列
+        let queues = (0..<5).map { index in
+            DispatchQueue(label: "com.nan.logQueue.\(index)")
+        }
+        
+        // 使用组来等待所有任务完成
+        let group = DispatchGroup()
+        
+        // 每个队列写入2000条日志
+        for (index, queue) in queues.enumerated() {
+            group.enter()
+            queue.async {
+                for i in 1...2000 {
+                    let memory = self.getMemoryUsage()
+                    SNPLogManager.shared.writeLog(log: "并发测试 - 线程\(index) - #\(i) - 内存: \(memory)MB")
+                }
+                group.leave()
+            }
+        }
+        
+        // 所有任务完成后计算性能
+        group.notify(queue: .main) {
+            let timeElapsed = CFAbsoluteTimeGetCurrent() - self.startTime
+            print("并发测试完成：")
+            print("总日志数: 10000条")
+            print("总耗时: \(String(format: "%.3f", timeElapsed))秒")
+            print("平均每条日志耗时: \(String(format: "%.3f", timeElapsed/10000*1000))毫秒")
+            
+            // 验证日志文件完整性
+            self.verifyLogFile()
+        }
+    }
+    
+    private func verifyLogFile() {
+        let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
+        let logPath = (documentsPath as NSString).appendingPathComponent("Logs")
+        
+        // 使用与SNPLogManager相同的日期格式
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        let currentFileName = "SNPLog-\(dateFormatter.string(from: Date())).log"
+        let logFilePath = (logPath as NSString).appendingPathComponent(currentFileName)
+        
+        print("验证日志文件路径: \(logFilePath)")  // 添加这行来调试文件路径
+        
+        do {
+            let content = try String(contentsOfFile: logFilePath, encoding: .utf8)
+            let lines = content.components(separatedBy: .newlines)
+            let validLines = lines.filter { !$0.isEmpty }
+            
+            print("日志验证结果：")
+            print("实际写入行数: \(validLines.count)")
+            
+            // 检查是否有重复的日志序号
+            var threadLogs: [Int: Set<Int>] = [:]
+            for line in validLines {
+                if let range = line.range(of: "线程(\\d+).+#(\\d+)", options: .regularExpression) {
+                    let match = String(line[range])
+                    let matchComponents = match.split(separator: "线程").last?.split(separator: " - #")
+                    if let components = matchComponents,
+                       components.count >= 2,
+                       let threadId = Int(components[0]),
+                       let logId = Int(components[1]) {
+                        threadLogs[threadId, default: []].insert(logId)
+                    }
+                }
+            }
+            
+            // 检查每个线程的日志完整性
+            for (threadId, logs) in threadLogs {
+                print("线程\(threadId)写入日志数: \(logs.count)")
+                if logs.count != 2000 {
+                    print("警告：线程\(threadId)日志不完整，缺少\(2000 - logs.count)条")
+                }
+            }
+            
+        } catch {
+            print("日志文件验证失败：\(error)")
+            print("尝试验证的文件路径：\(logFilePath)")  // 添加这行来显示具体路径
+            
+            // 列出日志目录中的所有文件
+            do {
+                let files = try FileManager.default.contentsOfDirectory(atPath: logPath)
+                print("日志目录中的文件：")
+                for file in files {
+                    print(file)
+                }
+            } catch {
+                print("无法读取日志目录：\(error)")
+            }
+        }
     }
     
     deinit {
