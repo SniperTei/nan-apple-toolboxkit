@@ -27,7 +27,8 @@ class TestViewController: UIViewController {
             TestItem(title: "性能测试(1万条)", action: performanceTest),
             TestItem(title: "开始连续写入", action: startLoggingTest),
             TestItem(title: "停止写入", action: stopLoggingTest),
-            TestItem(title: "并发写入测试", action: concurrentTest)
+            TestItem(title: "并发写入测试", action: concurrentTest),
+            TestItem(title: "生产者消费者测试", action: producerConsumerTest)
         ]),
         TestSection(title: "日志查看", items: [
             TestItem(title: "查看日志文件", action: showLogFile),
@@ -43,6 +44,16 @@ class TestViewController: UIViewController {
     private var autoLogCount: Int = 0
     private var logTimer: Timer?
     private var startTime: CFAbsoluteTime = 0
+    
+    // 添加生产者消费者测试相关代码
+    private let queue = DispatchQueue(label: "com.nan.queue", attributes: .concurrent)
+    private let semaphore = DispatchSemaphore(value: 0)
+    private let bufferLock = NSLock()
+    private let maxBufferSize = 100
+    private var buffer: [Int] = []
+    private var isProducing = true
+    private var totalItemsToProducePerProducer = 17  // 每个生产者生产17个，3个生产者共51个
+    private var totalProduced = 0  // 记录总共生产的数量
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -247,25 +258,37 @@ class TestViewController: UIViewController {
             
             var result = "实际写入行数: \(validLines.count)\n\n"
             
-            var threadLogs: [Int: Set<Int>] = [:]
+            // 分析生产者消费者日志
+            var producerCounts: [Int: Int] = [:]
+            var consumerCounts: [Int: Int] = [:]
+            
             for line in validLines {
-                if let range = line.range(of: "线程(\\d+).+#(\\d+)", options: .regularExpression) {
-                    let match = String(line[range])
-                    let matchComponents = match.split(separator: "线程").last?.split(separator: " - #")
-                    if let components = matchComponents,
-                       components.count >= 2,
-                       let threadId = Int(components[0]),
-                       let logId = Int(components[1]) {
-                        threadLogs[threadId, default: []].insert(logId)
+                if line.contains("生产者") && line.contains("生产:") {
+                    // 提取生产者ID
+                    if let match = line.firstMatch(of: /生产者(\d+)/) {
+                        if let id = Int(String(match.1)) {
+                            producerCounts[id, default: 0] += 1
+                        }
+                    }
+                } else if line.contains("消费者") && line.contains("消费:") {
+                    // 提取消费者ID
+                    if let match = line.firstMatch(of: /消费者(\d+)/) {
+                        if let id = Int(String(match.1)) {
+                            consumerCounts[id, default: 0] += 1
+                        }
                     }
                 }
             }
             
-            for (threadId, logs) in threadLogs {
-                result += "线程\(threadId)写入日志数: \(logs.count)\n"
-                if logs.count != 2000 {
-                    result += "警告：线程\(threadId)日志不完整，缺少\(2000 - logs.count)条\n"
-                }
+            // 添加生产者消费者统计
+            result += "\n生产者统计：\n"
+            for (id, count) in producerCounts.sorted(by: { $0.key < $1.key }) {
+                result += "生产者\(id): \(count)条\n"
+            }
+            
+            result += "\n消费者统计：\n"
+            for (id, count) in consumerCounts.sorted(by: { $0.key < $1.key }) {
+                result += "消费者\(id): \(count)条\n"
             }
             
             completion(result)
@@ -310,6 +333,107 @@ class TestViewController: UIViewController {
             toast.alpha = 0
         }) { _ in
             toast.removeFromSuperview()
+        }
+    }
+    
+    // 添加生产者消费者测试相关代码
+    private func producerConsumerTest() {
+        // 重置状态
+        startTime = CFAbsoluteTimeGetCurrent()
+        isProducing = true
+        totalProduced = 0
+        buffer.removeAll()
+        
+        // 启动3个生产者
+        for producerId in 0..<3 {
+            queue.async { [weak self] in
+                self?.producer(id: producerId)
+            }
+        }
+        
+        // 启动2个消费者
+        for consumerId in 0..<2 {
+            queue.async { [weak self] in
+                self?.consumer(id: consumerId)
+            }
+        }
+        
+        // 等待生产完成
+        queue.async { [weak self] in
+            // 等待所有生产者生产完成
+            Thread.sleep(forTimeInterval: 2)
+            self?.isProducing = false
+            
+            // 再等待一会儿让消费者消费完
+            Thread.sleep(forTimeInterval: 2)
+            
+            DispatchQueue.main.async {
+                self?.stopProducerConsumerTest()
+            }
+        }
+        
+        showToast(message: "生产者消费者测试开始")
+    }
+    
+    private func producer(id: Int) {
+        var count = 0
+        while isProducing && count < totalItemsToProducePerProducer {
+            bufferLock.lock()
+            if buffer.count < maxBufferSize {
+                count += 1
+                totalProduced += 1
+                buffer.append(totalProduced)  // 使用totalProduced作为item值，并且先增加
+                SNPLogManager.shared.writeLog(log: "生产者\(id) 生产第\(count)个(总第\(totalProduced)个), 当前缓冲区: \(buffer.count)个")
+                semaphore.signal()
+            }
+            bufferLock.unlock()
+            Thread.sleep(forTimeInterval: 0.1) // 放慢速度，便于观察
+        }
+        SNPLogManager.shared.writeLog(log: "生产者\(id) 完成生产, 共生产: \(count)个")
+    }
+    
+    private func consumer(id: Int) {
+        var count = 0
+        while isProducing || !buffer.isEmpty {
+            if semaphore.wait(timeout: .now() + 1) == .timedOut {
+                if !isProducing && buffer.isEmpty {
+                    break  // 如果生产结束且缓冲区为空，则退出
+                }
+                continue
+            }
+            
+            bufferLock.lock()
+            if !buffer.isEmpty {
+                let item = buffer.removeFirst()
+                count += 1
+                SNPLogManager.shared.writeLog(log: "消费者\(id) 消费第\(count)个(序号\(item)), 剩余缓冲区: \(buffer.count)个")
+            }
+            bufferLock.unlock()
+            Thread.sleep(forTimeInterval: 0.15) // 消费比生产慢一点
+        }
+        SNPLogManager.shared.writeLog(log: "消费者\(id) 结束消费, 共消费: \(count)个")
+    }
+    
+    private func stopProducerConsumerTest() {
+        let timeElapsed = CFAbsoluteTimeGetCurrent() - startTime
+        
+        // 清理资源
+        bufferLock.lock()
+        let remainingItems = buffer.count
+        buffer.removeAll()
+        bufferLock.unlock()
+        
+        verifyLogFile { [self] result in
+            let message = """
+                测试时长: \(String(format: "%.3f", timeElapsed))秒
+                目标生产数量: \(3 * self.totalItemsToProducePerProducer)个
+                实际生产数量: \(totalProduced)个
+                剩余未消费: \(remainingItems)个
+                
+                日志分析：
+                \(result)
+                """
+            self.showAlert(title: "生产者消费者测试完成", message: message)
         }
     }
 }
