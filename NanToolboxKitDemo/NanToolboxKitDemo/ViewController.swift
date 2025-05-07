@@ -28,7 +28,7 @@ class ViewController: UIViewController {
             logFileName: "default.log",
             logLevel: .debug,
             logType: .file,
-            logInfoType: .default
+            logInfoType: .info
         ))
         
         setupTestButtons()

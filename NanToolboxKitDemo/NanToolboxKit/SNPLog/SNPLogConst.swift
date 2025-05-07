@@ -10,9 +10,7 @@ import Foundation
 // 日志级别
 public enum SNPLogLevel {
     case debug
-    case info
-    case warning
-    case error
+    case release
 }
 
 // 日志输出类型
@@ -23,7 +21,9 @@ public enum SNPLogType {
 
 // 日志记录类型
 public enum SNPLogInfoType {
-    case `default`
-    case detailed
+    case info
+    case network
+    case error
+    case warning
 }
 

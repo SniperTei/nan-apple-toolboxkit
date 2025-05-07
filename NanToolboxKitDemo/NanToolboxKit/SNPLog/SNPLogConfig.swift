@@ -19,7 +19,7 @@ public struct SNPLogConfig {
         logFileName: String,
         logLevel: SNPLogLevel = .debug,
         logType: SNPLogType = .console,
-        logInfoType: SNPLogInfoType = .default
+        logInfoType: SNPLogInfoType = .info
     ) {
         self.logFilePath = logFilePath
         self.logFileName = logFileName

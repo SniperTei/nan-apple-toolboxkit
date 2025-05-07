@@ -87,7 +87,7 @@ class TestViewController: UIViewController {
             logFileName: "default.log",
             logLevel: .debug,
             logType: .file,
-            logInfoType: .default
+            logInfoType: .info
         ))
     }
     
@@ -382,14 +382,38 @@ class TestViewController: UIViewController {
             if buffer.count < maxBufferSize {
                 count += 1
                 totalProduced += 1
-                buffer.append(totalProduced)  // 使用totalProduced作为item值，并且先增加
-                SNPLogManager.shared.writeLog(log: "生产者\(id) 生产第\(count)个(总第\(totalProduced)个), 当前缓冲区: \(buffer.count)个")
+                buffer.append(totalProduced)
+                
+                // 根据不同情况使用不同的日志级别和类型
+                if count == 1 {
+                    SNPLogManager.shared.writeLog(
+                        log: "生产者\(id) 开始生产",
+                        level: .debug,
+                        type: .info
+                    )
+                } else if buffer.count >= maxBufferSize {
+                    SNPLogManager.shared.writeLog(
+                        log: "生产者\(id) 缓冲区已满",
+                        level: .debug,
+                        type: .error
+                    )
+                }
+                
+                SNPLogManager.shared.writeLog(
+                    log: "生产者\(id) 生产第\(count)个(总第\(totalProduced)个), 当前缓冲区: \(buffer.count)个",
+                    level: .debug,
+                    type: .info
+                )
                 semaphore.signal()
             }
             bufferLock.unlock()
-            Thread.sleep(forTimeInterval: 0.1) // 放慢速度，便于观察
+            Thread.sleep(forTimeInterval: 0.1)
         }
-        SNPLogManager.shared.writeLog(log: "生产者\(id) 完成生产, 共生产: \(count)个")
+        SNPLogManager.shared.writeLog(
+            log: "生产者\(id) 完成生产, 共生产: \(count)个",
+            level: .debug,
+            type: .info
+        )
     }
     
     private func consumer(id: Int) {
@@ -397,8 +421,11 @@ class TestViewController: UIViewController {
         while isProducing || !buffer.isEmpty {
             if semaphore.wait(timeout: .now() + 1) == .timedOut {
                 if !isProducing && buffer.isEmpty {
-                    break  // 如果生产结束且缓冲区为空，则退出
+                    break
                 }
+                SNPLogManager.shared.writeLog(
+                    log: "消费者\(id) 等待超时"
+                )
                 continue
             }
             
@@ -406,12 +433,29 @@ class TestViewController: UIViewController {
             if !buffer.isEmpty {
                 let item = buffer.removeFirst()
                 count += 1
-                SNPLogManager.shared.writeLog(log: "消费者\(id) 消费第\(count)个(序号\(item)), 剩余缓冲区: \(buffer.count)个")
+                
+                if count == 1 {
+                    SNPLogManager.shared.writeLog(
+                        log: "消费者\(id) 开始消费"
+                    )
+                }
+                
+                SNPLogManager.shared.writeLog(
+                    log: "消费者\(id) 消费第\(count)个(序号\(item)), 剩余缓冲区: \(buffer.count)个"
+                )
+            } else {
+                SNPLogManager.shared.writeLog(
+                    log: "消费者\(id) 发现空缓冲区",
+                    type: .warning
+                )
             }
             bufferLock.unlock()
-            Thread.sleep(forTimeInterval: 0.15) // 消费比生产慢一点
+            Thread.sleep(forTimeInterval: 0.15)
         }
-        SNPLogManager.shared.writeLog(log: "消费者\(id) 结束消费, 共消费: \(count)个")
+        SNPLogManager.shared.writeLog(
+            log: "消费者\(id) 结束消费, 共消费: \(count)个",
+            type: .info
+        )
     }
     
     private func stopProducerConsumerTest() {
