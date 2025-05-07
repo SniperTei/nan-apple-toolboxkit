@@ -38,6 +38,7 @@ public class SNPLogManager {
         self.logLevel = config.logLevel
         self.logType = config.logType
         self.logInfoType = config.logInfoType
+        self.deviceId = config.deviceId
         self.currentLogDate = fileNameDateFormatter.string(from: Date())
         
         // 创建日志文件夹
@@ -99,6 +100,7 @@ public class SNPLogManager {
     private let logLevel: SNPLogLevel
     private let logType: SNPLogType
     private let logInfoType: SNPLogInfoType
+    private let deviceId: String
     
     // 添加两个日期格式化器
     private let fileNameDateFormatter: DateFormatter = {
@@ -204,7 +206,8 @@ public class SNPLogManager {
         if today != currentLogDate {
             currentLogDate = today
         }
-        return "SNPLog-\(currentLogDate).log"
+        // 在日志文件名中加入设备ID
+        return "SNPLog-\(deviceId)-\(currentLogDate).log"
     }
 
     // 写入日志
@@ -233,8 +236,8 @@ public class SNPLogManager {
 extension SNPLogLevel {
     var indicator: String {
         switch self {
-        case .debug:   return "💚 DEBUG"
-        case .release:    return "💙 INFO"
+        case .debug:   return "[DEBUG]"
+        case .release:    return "[INFO]"
         }
     }
 }
@@ -243,10 +246,10 @@ extension SNPLogLevel {
 extension SNPLogInfoType {
     var indicator: String {
         switch self {
-        case .info:    return "📝 INFO"
-        case .network: return "🌐 NET"
-        case .error:   return "⚠️ ERR"
-        case .warning: return "💛 WARN"
+        case .info:    return "[INFO]"
+        case .network: return "[NETWORK]"
+        case .error:   return "[ERROR]"
+        case .warning: return "[WARN]"
         }
     }
 }
