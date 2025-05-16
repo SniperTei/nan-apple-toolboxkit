@@ -1,0 +1,6 @@
+framework module Pods_NanToolboxKitDemo {
+  umbrella header "Pods-NanToolboxKitDemo-umbrella.h"
+
+  export *
+  module * { export * }
+}

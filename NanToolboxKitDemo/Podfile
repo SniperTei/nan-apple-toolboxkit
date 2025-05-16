@@ -1,0 +1,16 @@
+
+# It's good practice to include the Pod source in your Podfile
+source 'https://github.com/CocoaPods/Specs.git'
+
+# specify platform and target OS version
+platform :ios, '12.0'
+
+inhibit_all_warnings!
+
+target 'NanToolboxKitDemo' do
+  use_frameworks!
+
+  pod 'Alamofire'
+
+end
+

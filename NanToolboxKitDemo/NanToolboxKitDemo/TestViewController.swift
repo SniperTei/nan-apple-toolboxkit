@@ -16,7 +16,8 @@ class TestViewController: UIViewController {
         "测试崩溃",
         "测试埋点",
         "测试性能",
-        "测试网络"
+        "测试网络",
+        "测试旋转"
     ]
     
     override func viewDidLoad() {
@@ -72,6 +73,11 @@ extension TestViewController: UITableViewDelegate, UITableViewDataSource {
             break
         case 4: // 测试网络
             // TODO: 实现网络测试控制器
+            break
+        case 5: // 测试旋转
+            // TODO: 实现旋转测试控制器
+            let rotateVC = TestViewRotateController()
+            navigationController?.pushViewController(rotateVC, animated: true)
             break
         default:
             break
