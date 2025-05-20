@@ -1,0 +1,45 @@
+{
+  "buildCommand" : {
+    "command" : "build",
+    "skipDependencies" : false,
+    "style" : "buildAndRun"
+  },
+  "configuredTargets" : [
+    {
+      "guid" : "2e7ee66850d78bdd12a216646121ccea3b41986624b04935f573895827a1f632"
+    }
+  ],
+  "containerPath" : "/Users/zhengnan/Sniper/Developer/github/nan-apple/NanToolboxKit/NanToolboxKit.xcodeproj",
+  "continueBuildingAfterErrors" : false,
+  "dependencyScope" : "workspace",
+  "enableIndexBuildArena" : false,
+  "hideShellScriptEnvironment" : false,
+  "parameters" : {
+    "action" : "build",
+    "configurationName" : "Debug",
+    "overrides" : {
+      "commandLine" : {
+        "table" : {
+          "BUILD_DIR" : "/Users/zhengnan/Library/Developer/Xcode/DerivedData/NanToolbox-femvmsitemmwjagnudfwzojtzrjq/Build/Products",
+          "BUILD_ROOT" : "/Users/zhengnan/Library/Developer/Xcode/DerivedData/NanToolbox-femvmsitemmwjagnudfwzojtzrjq/Build/Products",
+          "ONLY_ACTIVE_ARCH" : "NO",
+          "SDKROOT" : "iphonesimulator18.2",
+          "TOOLCHAINS" : "com.apple.dt.toolchain.XcodeDefault"
+        }
+      },
+      "synthesized" : {
+        "table" : {
+          "ACTION" : "build",
+          "ENABLE_PREVIEWS" : "NO",
+          "ENABLE_XOJIT_PREVIEWS" : "NO"
+        }
+      },
+      "toolchainOverride" : "com.apple.dt.toolchain.XcodeDefault"
+    }
+  },
+  "showNonLoggedProgress" : true,
+  "useDryRun" : false,
+  "useImplicitDependencies" : false,
+  "useLegacyBuildLocations" : false,
+  "useParallelTargets" : true
+}

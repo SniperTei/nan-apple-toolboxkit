@@ -6,8 +6,42 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		7DB42ACB2DDC5D85001EC5E4 /* NanToolboxKit-Script */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 7DB42ACE2DDC5D85001EC5E4 /* Build configuration list for PBXAggregateTarget "NanToolboxKit-Script" */;
+			buildPhases = (
+				7DB42AD12DDC5DC0001EC5E4 /* ShellScript */,
+			);
+			dependencies = (
+				7DB42AD02DDC5DBB001EC5E4 /* PBXTargetDependency */,
+			);
+			name = "NanToolboxKit-Script";
+			packageProductDependencies = (
+			);
+			productName = "NanToolboxKit-Script";
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildFile section */
+		63CE3401EB825045761206B6 /* Pods_NanToolboxKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2843B2BC55D66A9740649588 /* Pods_NanToolboxKit.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		7DB42ACF2DDC5DBB001EC5E4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7D5D96212DDC4B8B0031A077 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7D5D96292DDC4B8B0031A077;
+			remoteInfo = NanToolboxKit;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		2843B2BC55D66A9740649588 /* Pods_NanToolboxKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_NanToolboxKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7D5D962A2DDC4B8B0031A077 /* NanToolboxKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NanToolboxKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A220DF341E8D2D43E6F34FCE /* Pods-NanToolboxKit.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NanToolboxKit.debug.xcconfig"; path = "Target Support Files/Pods-NanToolboxKit/Pods-NanToolboxKit.debug.xcconfig"; sourceTree = "<group>"; };
+		F06CF2F895DD0C6A1A468891 /* Pods-NanToolboxKit.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NanToolboxKit.release.xcconfig"; path = "Target Support Files/Pods-NanToolboxKit/Pods-NanToolboxKit.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -36,17 +70,38 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				63CE3401EB825045761206B6 /* Pods_NanToolboxKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		22D8342AE73BF3D1C8271744 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				2843B2BC55D66A9740649588 /* Pods_NanToolboxKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		30A4038C6B57A74A424DAD08 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				A220DF341E8D2D43E6F34FCE /* Pods-NanToolboxKit.debug.xcconfig */,
+				F06CF2F895DD0C6A1A468891 /* Pods-NanToolboxKit.release.xcconfig */,
+			);
+			name = Pods;
+			path = ../Pods;
+			sourceTree = "<group>";
+		};
 		7D5D96202DDC4B8B0031A077 = {
 			isa = PBXGroup;
 			children = (
 				7D5D962C2DDC4B8B0031A077 /* NanToolboxKit */,
 				7D5D962B2DDC4B8B0031A077 /* Products */,
+				30A4038C6B57A74A424DAD08 /* Pods */,
+				22D8342AE73BF3D1C8271744 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -75,6 +130,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 7D5D96302DDC4B8B0031A077 /* Build configuration list for PBXNativeTarget "NanToolboxKit" */;
 			buildPhases = (
+				C943D131D5D20407E8E4657F /* [CP] Check Pods Manifest.lock */,
 				7D5D96252DDC4B8B0031A077 /* Headers */,
 				7D5D96262DDC4B8B0031A077 /* Sources */,
 				7D5D96272DDC4B8B0031A077 /* Frameworks */,
@@ -88,8 +144,6 @@
 				7D5D962C2DDC4B8B0031A077 /* NanToolboxKit */,
 			);
 			name = NanToolboxKit;
-			packageProductDependencies = (
-			);
 			productName = NanToolboxKit;
 			productReference = 7D5D962A2DDC4B8B0031A077 /* NanToolboxKit.framework */;
 			productType = "com.apple.product-type.framework";
@@ -104,6 +158,9 @@
 				LastUpgradeCheck = 1620;
 				TargetAttributes = {
 					7D5D96292DDC4B8B0031A077 = {
+						CreatedOnToolsVersion = 16.2;
+					};
+					7DB42ACB2DDC5D85001EC5E4 = {
 						CreatedOnToolsVersion = 16.2;
 					};
 				};
@@ -123,6 +180,7 @@
 			projectRoot = "";
 			targets = (
 				7D5D96292DDC4B8B0031A077 /* NanToolboxKit */,
+				7DB42ACB2DDC5D85001EC5E4 /* NanToolboxKit-Script */,
 			);
 		};
 /* End PBXProject section */
@@ -137,6 +195,48 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		7DB42AD12DDC5DC0001EC5E4 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nUNIVERSAL_OUTPUTFOLDER=../Framework/\n\n# 创建输出目录，并删除之前的framework文件\nmkdir -p \"${UNIVERSAL_OUTPUTFOLDER}\"\nrm -rf \"${UNIVERSAL_OUTPUTFOLDER}/${PROJECT_NAME}.framework\"\n\n# 分别编译模拟器和真机的Framework\nxcodebuild -target \"${PROJECT_NAME}\" ONLY_ACTIVE_ARCH=NO -configuration ${CONFIGURATION} -sdk iphoneos  BUILD_DIR=\"${BUILD_DIR}\" BUILD_ROOT=\"${BUILD_ROOT}\" clean build\nxcodebuild -target \"${PROJECT_NAME}\" ONLY_ACTIVE_ARCH=NO -configuration ${CONFIGURATION} -sdk iphonesimulator BUILD_DIR=\"${BUILD_DIR}\" BUILD_ROOT=\"${BUILD_ROOT}\" clean build\n\n# 定义真机、模拟器Build文件夹路径变量\nIPHONE_BUILD=${BUILD_DIR}/${CONFIGURATION}-iphoneos/${PROJECT_NAME}.framework\nSIMULATOR_BUILD=${BUILD_DIR}/${CONFIGURATION}-iphonesimulator/${PROJECT_NAME}.framework\n\n# 拷贝framework到univer目录\ncp -R \"${IPHONE_BUILD}\" \"${UNIVERSAL_OUTPUTFOLDER}/\"\n\n#cp -R \"${SIMULATOR_BUILD}\" \"${UNIVERSAL_OUTPUTFOLDER}/\"\n\n# 定义输出路径变量\nOUTPUT_PATH=${UNIVERSAL_OUTPUTFOLDER}/${PROJECT_NAME}.framework\n\n# 合并framework，输出最终的framework到build目录 \nlipo -create \"${IPHONE_BUILD}/${PROJECT_NAME}\" \"${SIMULATOR_BUILD}/${PROJECT_NAME}\" -output \"${OUTPUT_PATH}/${PROJECT_NAME}\"\n";
+		};
+		C943D131D5D20407E8E4657F /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-NanToolboxKit-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		7D5D96262DDC4B8B0031A077 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -147,9 +247,18 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		7DB42AD02DDC5DBB001EC5E4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7D5D96292DDC4B8B0031A077 /* NanToolboxKit */;
+			targetProxy = 7DB42ACF2DDC5DBB001EC5E4 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
 		7D5D96312DDC4B8B0031A077 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A220DF341E8D2D43E6F34FCE /* Pods-NanToolboxKit.debug.xcconfig */;
 			buildSettings = {
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CODE_SIGN_STYLE = Automatic;
@@ -182,6 +291,7 @@
 		};
 		7D5D96322DDC4B8B0031A077 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = F06CF2F895DD0C6A1A468891 /* Pods-NanToolboxKit.release.xcconfig */;
 			buildSettings = {
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CODE_SIGN_STYLE = Automatic;
@@ -337,6 +447,24 @@
 			};
 			name = Release;
 		};
+		7DB42ACC2DDC5D85001EC5E4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		7DB42ACD2DDC5D85001EC5E4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -354,6 +482,15 @@
 			buildConfigurations = (
 				7D5D96312DDC4B8B0031A077 /* Debug */,
 				7D5D96322DDC4B8B0031A077 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7DB42ACE2DDC5D85001EC5E4 /* Build configuration list for PBXAggregateTarget "NanToolboxKit-Script" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7DB42ACC2DDC5D85001EC5E4 /* Debug */,
+				7DB42ACD2DDC5D85001EC5E4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -1,0 +1,6 @@
+framework module NanToolboxKit {
+  umbrella header "NanToolboxKit.h"
+  export *
+
+  module * { export * }
+}
