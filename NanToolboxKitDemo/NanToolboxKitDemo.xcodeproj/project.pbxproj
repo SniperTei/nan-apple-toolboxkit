@@ -7,18 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		7DB42A0A2DDC4E60001EC5E4 /* NanToolboxKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7DB42A092DDC4E60001EC5E4 /* NanToolboxKit.framework */; };
-		7DB42A0B2DDC4E60001EC5E4 /* NanToolboxKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7DB42A092DDC4E60001EC5E4 /* NanToolboxKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		7DB42A542DDC546C001EC5E4 /* NanToolboxKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7DB42A532DDC546C001EC5E4 /* NanToolboxKit.framework */; };
+		7DB42A552DDC546C001EC5E4 /* NanToolboxKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7DB42A532DDC546C001EC5E4 /* NanToolboxKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		7DB42A0C2DDC4E60001EC5E4 /* Embed Frameworks */ = {
+		7DB42A562DDC546C001EC5E4 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				7DB42A0B2DDC4E60001EC5E4 /* NanToolboxKit.framework in Embed Frameworks */,
+				7DB42A552DDC546C001EC5E4 /* NanToolboxKit.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -28,6 +28,7 @@
 /* Begin PBXFileReference section */
 		7D5D963E2DDC4BB30031A077 /* NanToolboxKitDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NanToolboxKitDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7DB42A092DDC4E60001EC5E4 /* NanToolboxKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = NanToolboxKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		7DB42A532DDC546C001EC5E4 /* NanToolboxKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = NanToolboxKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -56,7 +57,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7DB42A0A2DDC4E60001EC5E4 /* NanToolboxKit.framework in Frameworks */,
+				7DB42A542DDC546C001EC5E4 /* NanToolboxKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -83,6 +84,7 @@
 		7DB42A082DDC4E60001EC5E4 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				7DB42A532DDC546C001EC5E4 /* NanToolboxKit.framework */,
 				7DB42A092DDC4E60001EC5E4 /* NanToolboxKit.framework */,
 			);
 			name = Frameworks;
@@ -98,7 +100,7 @@
 				7D5D963A2DDC4BB30031A077 /* Sources */,
 				7D5D963B2DDC4BB30031A077 /* Frameworks */,
 				7D5D963C2DDC4BB30031A077 /* Resources */,
-				7DB42A0C2DDC4E60001EC5E4 /* Embed Frameworks */,
+				7DB42A562DDC546C001EC5E4 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
