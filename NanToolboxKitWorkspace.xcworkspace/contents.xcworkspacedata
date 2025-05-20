@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:NanToolboxKitDemo/NanToolboxKitDemo.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:NanToolboxKit/NanToolboxKit.xcodeproj">
+   </FileRef>
+</Workspace>
