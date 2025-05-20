@@ -59,11 +59,11 @@ public class SNPLogManager {
     }
     
     public func writeLog(
-        log: String,
-        level: SNPLogLevel = .debug,
+        log: String, 
+        level: SNPLogLevel = .debug, 
         type: SNPLogInfoType = .info,
-        file: String = #file,
-        function: String = #function,
+        file: String = #file, 
+        function: String = #function, 
         line: Int = #line
     ) {
         // 如果是debug级别的日志，在release模式下不处理
@@ -182,7 +182,7 @@ public class SNPLogManager {
         logQueue.async { [weak self] in
             guard let self = self else { return }
             let now = Date()
-            if self.logBuffer.count > 0 &&
+            if self.logBuffer.count > 0 && 
                (now.timeIntervalSince(self.lastFlushTime) >= self.flushInterval) {
                 self.flushBuffer()
             }
