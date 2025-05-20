@@ -1,4 +1,39 @@
 
+### 2. 用户登录
+
+**请求方式**
+- POST `v1/user/login`
+
+**请求参数**
+```json
+{
+  "username": "string",    // 必需
+  "password": "string"     // 必需
+}
+```
+
+**成功响应**
+```json
+{
+  "code": "000000",
+  "statusCode": 200,
+  "msg": "登录成功",
+  "data": {
+    "token": "eyJhbGciOiJIUzI1...",
+    "user": {
+      "id": "60d5ecb8b5c9c62b3c3c1234",
+      "username": "admin",
+      "email": "admin@test.com",
+      "nickname": "管理员",
+      "avatarUrl": "http://example.com/avatar.jpg",
+      "isAdmin": true,
+      "createdAt": "2023-12-20T06:11:30.123Z"
+    }
+  },
+  "timestamp": "2023-12-20 14:11:30.123"
+}
+```
+
 ### 5. 文件上传
 
 **请求方式**

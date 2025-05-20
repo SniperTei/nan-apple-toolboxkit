@@ -72,8 +72,8 @@ extension TestViewController: UITableViewDelegate, UITableViewDataSource {
             // TODO: 实现性能测试控制器
             break
         case 4: // 测试网络
-            // TODO: 实现网络测试控制器
-            break
+            let apiVC = TestAPIController()
+            navigationController?.pushViewController(apiVC, animated: true)
         case 5: // 测试旋转
             // TODO: 实现旋转测试控制器
             let rotateVC = TestViewRotateController()
@@ -83,4 +83,4 @@ extension TestViewController: UITableViewDelegate, UITableViewDataSource {
             break
         }
     }
-} 
+}
