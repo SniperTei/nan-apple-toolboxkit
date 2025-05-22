@@ -30,6 +30,7 @@ class TestLogController: UIViewController {
     }
     
     // 测试项数据
+    // 在 sections 数组中添加新的测试项
     private lazy var sections: [TestSection] = [
         TestSection(title: "性能测试", items: [
             TestItem(title: "性能测试(1万条)", action: performanceTest),
@@ -40,9 +41,62 @@ class TestLogController: UIViewController {
         ]),
         TestSection(title: "日志管理", items: [
             TestItem(title: "查看日志文件", action: showLogFile),
-            TestItem(title: "清理日志文件", action: clearLogFiles)
+            TestItem(title: "清理日志文件", action: clearLogFiles),
+            TestItem(title: "网络请求日志测试", action: networkLogTest)  // 新增测试项
         ])
     ]
+    
+    // 添加网络请求日志测试方法
+    private func networkLogTest() {
+        // 记录请求参数
+        let requestParams: [String: Any] = [
+            "username": "admin",
+            "password": "123456",
+            "deviceId": "iPhone14Pro"
+        ]
+        
+        SNPLogManager.shared.writeLog(
+            log: """
+            === 网络请求开始 ===
+            URL: http://api.example.com/login
+            Method: POST
+            Headers: {
+                "Content-Type": "application/json",
+                "User-Agent": "MyApp/1.0"
+            }
+            Parameters: \(String(describing: requestParams))
+            """,
+            level: .debug,
+            type: .network
+        )
+        
+        // 模拟网络请求延迟
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            // 记录响应数据
+            let responseData: [String: Any] = [
+                "code": "200",
+                "msg": "登录成功",
+                "data": [
+                    "token": "eyJhbGciOiJIUzI1NiIs...",
+                    "userId": "12345",
+                    "username": "admin"
+                ]
+            ]
+            
+            SNPLogManager.shared.writeLog(
+                log: """
+                === 网络请求完成 ===
+                Status: 200 OK
+                Response Time: 1.023s
+                Response Data: \(String(describing: responseData))
+                """,
+                level: .debug,
+                type: .network
+            )
+            
+            self.showToast(message: "网络请求日志已记录")
+        }
+    }
     
     private var autoLogCount: Int = 0
     private var logTimer: Timer?
