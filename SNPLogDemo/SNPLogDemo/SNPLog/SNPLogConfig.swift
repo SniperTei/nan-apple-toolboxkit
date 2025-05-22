@@ -12,22 +12,19 @@ public struct SNPLogConfig {
     public let logFileName: String
     public let logLevel: SNPLogLevel
     public let logType: SNPLogType
-    public let logInfoType: SNPLogInfoType
     public let deviceId: String
     
     public init(
         logFilePath: String,
         logFileName: String,
+        deviceId: String,
         logLevel: SNPLogLevel = .debug,
-        logType: SNPLogType = .console,
-        logInfoType: SNPLogInfoType = .info,
-        deviceId: String
+        logType: SNPLogType = .console
     ) {
         self.logFilePath = logFilePath
         self.logFileName = logFileName
+        self.deviceId = deviceId
         self.logLevel = logLevel
         self.logType = logType
-        self.logInfoType = logInfoType
-        self.deviceId = deviceId
     }
 }

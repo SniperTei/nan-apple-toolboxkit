@@ -142,9 +142,6 @@ class TestLogController: UIViewController {
         SNPLogManager.setup(config: SNPLogConfig(
             logFilePath: logPath,
             logFileName: "default.log",
-            logLevel: .debug,
-            logType: .file,
-            logInfoType: .info,
             deviceId: "simulatorS"
         ))
     }

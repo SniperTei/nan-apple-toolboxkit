@@ -37,7 +37,7 @@ public class SNPLogManager {
         self.logFileName = config.logFileName
         self.logLevel = config.logLevel
         self.logType = config.logType
-        self.logInfoType = config.logInfoType
+        self.logInfoType = .info
         self.deviceId = config.deviceId
         self.currentLogDate = fileNameDateFormatter.string(from: Date())
         
