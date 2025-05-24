@@ -1,10 +1,3 @@
-//
-//  SNPNetworkManager.swift
-//  SNPNetworkDemo
-//
-//  Created by zhengnan on 2025/5/22.
-//
-
 import Foundation
 import Alamofire
 
@@ -19,22 +12,22 @@ class SNPNetworkManager {
         // 合并请求头
         var headers = SNPNetworkConfig.shared.commonHeaders
         if let requestHeaders = request.headers() {
-            headers.add(requestHeaders)
+            for (key, value) in requestHeaders {
+                headers[key] = value
+            }
         }
         
-        // 创建请求配置
-        let requestConfig = URLSessionConfiguration.default
-        requestConfig.timeoutIntervalForRequest = SNPNetworkConfig.shared.timeoutInterval
-        
-        // 创建Session
-        let session = Session(configuration: requestConfig)
+        // 转换为 Alamofire 的类型
+        let afMethod = HTTPMethod(rawValue: request.method().rawValue)
+        let afHeaders = HTTPHeaders(headers)
+        let afEncoding: ParameterEncoding = request.encoding() == .json ? JSONEncoding.default : URLEncoding.default
         
         // 发起请求
-        session.request(url,
-                       method: request.method(),
-                       parameters: request.params(),
-                       encoding: request.encoding(),
-                       headers: headers)
+        AF.request(url,
+                  method: afMethod,
+                  parameters: request.params(),
+                  encoding: afEncoding,
+                  headers: afHeaders)
         .responseDecodable(of: T.self) { response in
             if SNPNetworkConfig.shared.enableLog {
                 print("Request URL: \(url)")
