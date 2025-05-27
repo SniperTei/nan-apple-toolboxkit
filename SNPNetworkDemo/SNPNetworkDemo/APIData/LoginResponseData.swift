@@ -7,7 +7,10 @@
 
 import Foundation
 
-class LoginResponseData: SNPAPIResponseData {
-    var data: [String: Any]?
+class LoginResponseData: SNPAPIResponseData<LoginData> {
 
+}
+
+struct LoginData: Codable {
+    var token: String
 }

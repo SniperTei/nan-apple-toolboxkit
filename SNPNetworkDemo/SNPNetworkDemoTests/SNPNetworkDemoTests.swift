@@ -14,6 +14,7 @@ final class SNPNetworkDemoTests: XCTestCase {
         // Put setup code here. This method is called before the invocation of each test method in the class.
         let config = SNPNetworkConfig.shared
         config.baseURL = "http://localhost:3000"
+        config.enableLog = true
     }
 
     override func tearDownWithError() throws {
@@ -25,17 +26,6 @@ final class SNPNetworkDemoTests: XCTestCase {
         // Use XCTAssert and related functions to verify your tests produce the correct results.
         let loginRequestData = LoginRequestData(username: "admin", password: "admin0104")
         let manager = SNPNetworkManager.shared
-        // manager.request(loginRequestData) { (responseData, error) in
-        //     if let error = error {
-        //         print("login error: \(error)")
-        //         return
-        //     }
-        //     if let responseData = responseData {
-        //         print("login success: \(responseData)")
-        //     }
-        // }
-        // let loginRequestData = LoginRequestData(username: "admin", password: "admin0104")
-        // let manager = SNPNetworkManager.shared
         manager.request(loginRequestData) { (result: Result<LoginResponseData, Error>) in
             switch result {
             case .success(let responseData):

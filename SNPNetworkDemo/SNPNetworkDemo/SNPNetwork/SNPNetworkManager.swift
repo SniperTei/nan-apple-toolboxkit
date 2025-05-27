@@ -6,8 +6,8 @@ class SNPNetworkManager {
     
     private init() {}
     
-    func request<T: SNPAPIResponseData>(_ request: SNPAPIRequestData, completion: @escaping (Result<T, Error>) -> Void) {
-        let url = SNPNetworkConfig.shared.baseURL + request.url()
+    func request<T: SNPAPIResponseData<D>, D: Codable>(_ request: SNPAPIRequestData, completion: @escaping (Result<T, Error>) -> Void) {
+        let url = request.url()
         
         // 合并请求头
         var headers = SNPNetworkConfig.shared.commonHeaders

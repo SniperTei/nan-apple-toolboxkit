@@ -7,14 +7,20 @@
 
 import Foundation
 
-class SNPAPIResponseData: Codable {
-    var code: Int = 0
-    var message: String = ""
+class SNPAPIResponseData<T: Codable>: Codable {
+    var code: String = "000000"
+    var statusCode: Int = 200
+    var msg: String = "success"
+    var data: T?
+    var timestamp: String = ""
     var success: Bool = false
     
     enum CodingKeys: String, CodingKey {
         case code
-        case message
+        case statusCode = "status_code"
+        case msg
+        case data
+        case timestamp
         case success
     }
 }

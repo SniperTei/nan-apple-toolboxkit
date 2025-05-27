@@ -18,7 +18,7 @@ class LoginRequestData: SNPAPIRequestData {
 
     override func url() -> String {
         let baseURL = SNPNetworkConfig.shared.baseURL
-        return baseURL + "/api/v1/login"
+        return baseURL + "/api/v1/user/login"
     }
 
     override func method() -> SNPHTTPMethod {
