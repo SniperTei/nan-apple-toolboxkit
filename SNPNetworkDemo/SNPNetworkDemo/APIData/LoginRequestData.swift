@@ -7,31 +7,32 @@
 
 import Foundation
 
-class LoginRequestData: SNPAPIRequestData {
-
+class LoginRequestData: SNPAPIRequestable {
+    
     var username: String
     var password: String
+    
     init(username: String, password: String) {
         self.username = username
         self.password = password
     }
-
-    override func url() -> String {
-        let baseURL = SNPNetworkConfig.shared.baseURL
-        return baseURL + "/api/v1/user/login"
-    }
-
-    override func method() -> SNPHTTPMethod {
+    
+    func method() -> SNPHTTPMethod {
         return .post
     }
-
-    override func params() -> [String : Any]? {
-        return ["username": username, "password": password]
+    
+    func url() -> String {
+        return "/api/login"
     }
-
-    override func headers() -> [String : String]? {
-        return nil
+    
+    func params() -> [String: Any]? {
+        return [
+            "username": username,
+            "password": password
+        ]
     }
-
-
+    
+    func encoding() -> SNPParameterEncoding {
+        return .json
+    }
 }

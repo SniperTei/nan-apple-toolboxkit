@@ -6,15 +6,25 @@ class SNPNetworkManager {
     
     private init() {}
     
-    func request<T: SNPAPIResponseData<D>, D: Codable>(_ request: SNPAPIRequestData, completion: @escaping (Result<T, Error>) -> Void) {
-        let url = request.url()
+    // 定义网络错误类型
+    enum NetworkError: Error {
+        case invalidURL
+        case invalidResponse
+        case decodingError(Error)
+        case networkError(Error)
+        case serverError(code: String, message: String)
+    }
+    
+    func request<Request: SNPAPIRequestable, Response: SNPAPIResponsable>(
+        _ request: Request,
+        completion: @escaping (Result<Response.DataType?, NetworkError>) -> Void
+    ) {
+        let url = SNPNetworkConfig.shared.baseURL + request.url()
         
         // 合并请求头
         var headers = SNPNetworkConfig.shared.commonHeaders
         if let requestHeaders = request.headers() {
-            for (key, value) in requestHeaders {
-                headers[key] = value
-            }
+            headers.merge(requestHeaders) { (_, new) in new }
         }
         
         // 转换为 Alamofire 的类型
@@ -28,20 +38,53 @@ class SNPNetworkManager {
                   parameters: request.params(),
                   encoding: afEncoding,
                   headers: afHeaders)
-        .responseDecodable(of: T.self) { response in
+        .validate()
+        .responseDecodable(of: Response.self) { response in
             if SNPNetworkConfig.shared.enableLog {
-                print("Request URL: \(url)")
-                print("Request Headers: \(headers)")
-                print("Request Params: \(String(describing: request.params()))")
-                print("Response: \(String(describing: response.value))")
+                self.logResponse(url: url, headers: headers, params: request.params(), response: response)
             }
             
             switch response.result {
             case .success(let value):
-                completion(.success(value))
+                if value.success {
+                    completion(.success(value.data))
+                } else {
+                    if request.showErrorInfo() {
+                    // 这里可以替换为你自己的弹窗/Toast 
+                        print("请求失败：\(value.msg)")
+                    }
+                    completion(.failure(.serverError(code: value.code, message: value.msg)))
+                }
             case .failure(let error):
-                completion(.failure(error))
+                if request.showErrorInfo() {
+                    // 这里可以替换为你自己的弹窗/Toast
+                    print("网络错误：\(error.localizedDescription)")
+                }
+                if let decodingError = error as? DecodingError {
+                    completion(.failure(.decodingError(decodingError)))
+                } else {
+                    completion(.failure(.networkError(error)))
+                }
             }
         }
+    }
+    
+    // 日志打印辅助方法
+    private func logResponse<T>(
+        url: String,
+        headers: [String: String],
+        params: [String: Any]?,
+        response: DataResponse<T, AFError>
+    ) {
+        print("=== Network Request Log ===")
+        print("URL: \(url)")
+        print("Headers: \(headers)")
+        print("Params: \(String(describing: params))")
+        if let data = response.data, let json = try? JSONSerialization.jsonObject(with: data) {
+            print("Response: \(json)")
+        } else {
+            print("Response: \(String(describing: response.value))")
+        }
+        print("=========================")
     }
 }
