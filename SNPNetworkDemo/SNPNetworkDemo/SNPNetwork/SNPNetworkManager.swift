@@ -47,7 +47,7 @@ class SNPNetworkManager {
             
             switch response.result {
             case .success(let value):
-                if value.success {
+                if value.isSuccess() {
                     completion(.success(value.data))
                 } else {
                     if request.showErrorInfo() {
