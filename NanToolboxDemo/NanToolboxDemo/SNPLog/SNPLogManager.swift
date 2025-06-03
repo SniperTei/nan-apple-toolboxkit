@@ -247,10 +247,6 @@ public class SNPLogManager {
     public static func error(_ message: String, file: String = #file, function: String = #function, line: Int = #line) {
         shared.writeLog(log: message, level: .release, type: .error, file: file, function: function, line: line)
     }
-    
-    public static func setLogLevel(_ level: SNPLogLevel) {
-        shared.logLevel = level
-    }
 }
 
 // 扩展SNPLogLevel添加指示器
