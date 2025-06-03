@@ -42,25 +42,30 @@ class TestNetworkController: UIViewController {
     
     private func setupNetwork() {
         let config = SNPNetworkConfig.shared
-        config.baseURL = "http://localhost:3000"
+        config.baseURL = "http://localhost:3000/api"
         config.enableLog = true
     }
     
     @objc private func loginButtonTapped() {
-        let loginRequestData = LoginRequestData(username: "admin", password: "admin0104")
-        let manager = SNPNetworkManager.shared
-        manager.request(loginRequestData) { [weak self] (result: Result<LoginResponseData, Error>) in
+        // 假设你有两个输入框 usernameTextField 和 passwordTextField
+        let username = "admin"
+        let password = "admin0104"
+        let request = LoginRequestData(username: username, password: password)
+        
+        SNPNetworkManager.shared.request(request, responseType: LoginResponse.self) { result in
             switch result {
-            case .success(let responseData):
-                print("登录成功: \(responseData)")
-                DispatchQueue.main.async {
-                    self?.showAlert(title: "成功", message: "登录成功")
+            case .success(let loginData):
+                if let loginData = loginData {
+                    // 登录成功，处理token和用户信息
+                    print("登录成功，token: \(loginData.token)")
+                    print("用户昵称: \(loginData.user.nickname)")
+                    // 这里可以保存token，跳转页面等
+                } else {
+                    print("登录成功，但未返回数据")
                 }
             case .failure(let error):
+                // 失败时，SNPNetworkManager 已经根据 showErrorInfo 自动弹窗或打印
                 print("登录失败: \(error)")
-                DispatchQueue.main.async {
-                    self?.showAlert(title: "错误", message: error.localizedDescription)
-                }
             }
         }
     }

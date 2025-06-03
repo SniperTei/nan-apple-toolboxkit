@@ -15,5 +15,5 @@ protocol SNPAPIResponsable: Codable {
     var msg: String { get set }
     var data: DataType? { get set }
     var timestamp: String { get set }
-    var success: Bool { get set }
+//    var success: Bool { get set }
 }

@@ -7,32 +7,14 @@
 
 import Foundation
 
-class LoginRequestData: SNPAPIRequestable {
-    
+struct LoginRequestData: SNPAPIRequestable {
     var username: String
     var password: String
-    
-    init(username: String, password: String) {
-        self.username = username
-        self.password = password
-    }
-    
-    func method() -> SNPHTTPMethod {
-        return .post
-    }
-    
-    func url() -> String {
-        return "/api/login"
-    }
-    
+
+    func method() -> SNPHTTPMethod { .post }
+    func url() -> String { "/v1/user/login" }
     func params() -> [String: Any]? {
-        return [
-            "username": username,
-            "password": password
-        ]
+        ["username": username, "password": password]
     }
-    
-    func encoding() -> SNPParameterEncoding {
-        return .json
-    }
+    func encoding() -> SNPParameterEncoding { .json }
 }

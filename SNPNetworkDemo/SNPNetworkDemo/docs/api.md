@@ -11,7 +11,7 @@ struct User: Codable {
     let id: String
     let username: String
     let email: String
-    let isAdmin: Bool
+    let isAdmin: Int
     let createdAt: String
     // 可选字段
     let nickname: String?

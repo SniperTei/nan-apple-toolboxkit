@@ -17,6 +17,7 @@ class SNPNetworkManager {
     
     func request<Request: SNPAPIRequestable, Response: SNPAPIResponsable>(
         _ request: Request,
+        responseType: Response.Type,
         completion: @escaping (Result<Response.DataType?, NetworkError>) -> Void
     ) {
         let url = SNPNetworkConfig.shared.baseURL + request.url()
@@ -39,7 +40,7 @@ class SNPNetworkManager {
                   encoding: afEncoding,
                   headers: afHeaders)
         .validate()
-        .responseDecodable(of: Response.self) { response in
+        .responseDecodable(of: responseType) { response in
             if SNPNetworkConfig.shared.enableLog {
                 self.logResponse(url: url, headers: headers, params: request.params(), response: response)
             }
