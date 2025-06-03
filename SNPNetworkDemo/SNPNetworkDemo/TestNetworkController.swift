@@ -52,7 +52,7 @@ class TestNetworkController: UIViewController {
         let password = "admin0104"
         let request = LoginRequestData(username: username, password: password)
         
-        SNPNetworkManager.shared.request(request, responseType: LoginResponse.self) { result in
+        SNPNetworkManager.shared.request(request, responseType: LoginResponseData.self) { result in
             switch result {
             case .success(let loginData):
                 if let loginData = loginData {

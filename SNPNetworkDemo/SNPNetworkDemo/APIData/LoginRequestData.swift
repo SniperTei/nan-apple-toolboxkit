@@ -17,4 +17,9 @@ struct LoginRequestData: SNPAPIRequestable {
         ["username": username, "password": password]
     }
     func encoding() -> SNPParameterEncoding { .json }
+    
+    /// 验证登录参数是否有效
+    func isValid() -> Bool {
+        return !username.isEmpty && !password.isEmpty
+    }
 }

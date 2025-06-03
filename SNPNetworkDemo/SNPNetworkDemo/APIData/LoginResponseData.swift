@@ -23,7 +23,7 @@ struct LoginData: Codable {
     let user: User
 }
 
-struct LoginResponse: SNPAPIResponsable {
+struct LoginResponseData: SNPAPIResponsable {
     typealias DataType = LoginData
 
     var code: String
