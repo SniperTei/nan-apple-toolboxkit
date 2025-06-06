@@ -22,87 +22,23 @@ public class SNPLogManager {
         _shared = SNPLogManager(config: config)
     }
     
-    private let config: SNPLogConfig  // 改为let，因为配置在初始化后不应该改变
-    
-    #if DEBUG
-    private let isDebugMode = true
-    #else
-    private let isDebugMode = false
-    #endif
-    
-    // 私有初始化方法
-    private init(config: SNPLogConfig) {
-        self.config = config
-        self.logFilePath = config.logFilePath
-        self.logFileName = config.logFileName
-        self.logLevel = config.logLevel
-        self.logType = config.logType
-        self.logInfoType = .info
-        self.deviceId = config.deviceId
-        self.currentLogDate = fileNameDateFormatter.string(from: Date())
-        
-        // 创建日志文件夹
-        let fileManager = FileManager.default
-        if !fileManager.fileExists(atPath: logFilePath) {
-            try! fileManager.createDirectory(atPath: logFilePath, withIntermediateDirectories: true, attributes: nil)
-        }
-        // 打印日志文件路径
-        print("日志文件路径: \(logFilePath)")
-        
-        // 创建日志写入器
-        let currentFileName = getCurrentLogFileName()
-        let logFilePath = (self.logFilePath as NSString).appendingPathComponent(currentFileName)
-        logger = CLogger.create(path: logFilePath)
-        
-        // 启动定时器，定期刷新缓冲区
-        startFlushTimer()
-    }
-    
-    public func writeLog(
-        log: String, 
-        level: SNPLogLevel = .debug, 
-        type: SNPLogInfoType = .info,
-        file: String = #file, 
-        function: String = #function, 
-        line: Int = #line
-    ) {
-        // 如果是debug级别的日志，在release模式下不处理
-        if level == .debug && !isDebugMode {
-            return
-        }
-        
-        // 获取时间戳
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
-        let timestamp = dateFormatter.string(from: Date())
-        
-        // 获取日志级别和类型标识
-        let levelString = level.indicator
-        let typeString = type.indicator
-        
-        // 构建完整日志
-        let fileName = (file as NSString).lastPathComponent
-        let fullLog = "[\(timestamp)] [\(levelString)] [\(typeString)] [\(fileName):\(line)] \(function) - \(log)"
-        
-        // 根据配置输出日志
-        if config.logType == .console || config.logType == .file {
-            print(fullLog)
-        }
-        
-        if config.logType == .file {
-            writeToFile(log: fullLog)
-        }
-    }
-    
-    // 添加这些属性
+    // MARK: - 私有属性
+    private let config: SNPLogConfig
     private let logFilePath: String
-    private let logFileName: String
-    private let logLevel: SNPLogLevel
     private let logType: SNPLogType
     private let logInfoType: SNPLogInfoType
     private let deviceId: String
+    private var currentLogDate: String
+    private var fileHandle: FileHandle?
+    private let logQueue: DispatchQueue
     
-    // 添加两个日期格式化器
+//    #if DEBUG
+//    private let isDebugMode = true
+//    #else
+//    private let isDebugMode = false
+//    #endif
+    
+    // 日期格式化器
     private let fileNameDateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
@@ -115,89 +51,96 @@ public class SNPLogManager {
         return formatter
     }()
     
-    // 添加当前日志日期属性
-    private var currentLogDate: String
-    
-    // 添加日志队列和文件句柄缓存
-    private let logQueue = DispatchQueue(label: "com.nan.logQueue", qos: .utility)
-    private var fileHandle: FileHandle?
-    private var currentLogPath: String = ""
-    
-    // 添加缓冲区
-    private var logBuffer: [String] = []
-    private let maxBufferSize = 20  // 达到20条时批量写入
-    private let flushInterval: TimeInterval = 5  // 5秒未达到条数也写入
-    private var lastFlushTime: Date = Date()
-    
-    // MARK: - C函数声明
-    private enum CLogger {
-        private static let BUFFER_SIZE = 64 * 1024  // 64KB buffer
+    // 私有初始化方法
+    private init(config: SNPLogConfig) {
+        self.config = config
+        self.logFilePath = config.logFilePath
+        self.logType = config.logType
+        self.logInfoType = .info
+        self.deviceId = config.deviceId
+        self.logQueue = DispatchQueue(label: "com.nan.logQueue", qos: .utility)
+        self.currentLogDate = fileNameDateFormatter.string(from: Date())
         
-        typealias LoggerRef = UnsafeMutableRawPointer
-        
-        static func create(path: String) -> LoggerRef? {
-            path.withCString { pathPtr in
-                snp_log_create(pathPtr)
-            }
-        }
-        
-        static func write(_ logger: LoggerRef, _ content: String) {
-            content.withCString { contentPtr in
-                snp_log_write(logger, contentPtr, strlen(contentPtr))
-            }
-        }
-        
-        static func flush(_ logger: LoggerRef) {
-            snp_log_flush(logger)
-        }
-        
-        static func destroy(_ logger: LoggerRef) {
-            snp_log_destroy(logger)
-        }
-        
-        // C函数链接
-        @_silgen_name("snp_log_create")
-        private static func snp_log_create(_ path: UnsafePointer<Int8>!) -> LoggerRef!
-        
-        @_silgen_name("snp_log_write")
-        private static func snp_log_write(_ logger: LoggerRef!, _ content: UnsafePointer<Int8>!, _ length: Int) -> Int32
-        
-        @_silgen_name("snp_log_flush")
-        private static func snp_log_flush(_ logger: LoggerRef!)
-        
-        @_silgen_name("snp_log_destroy")
-        private static func snp_log_destroy(_ logger: LoggerRef!)
+        // 完成所有属性初始化后，再进行文件操作
+        setupLogFile()
+        startFlushTimer()
     }
     
-    // MARK: - 私有属性
-    private var logger: CLogger.LoggerRef?
+    private func setupLogFile() {
+        let fileManager = FileManager.default
+        do {
+            // 确保日志目录存在
+            if !fileManager.fileExists(atPath: logFilePath) {
+                try fileManager.createDirectory(atPath: logFilePath, withIntermediateDirectories: true, attributes: nil)
+            }
+            
+            // 获取完整的日志文件路径
+            let currentFileName = getCurrentLogFileName()
+            let fullPath = (self.logFilePath as NSString).appendingPathComponent(currentFileName)
+            print("日志文件路径: \(fullPath)")
+            
+            // 如果文件不存在，创建文件
+            if !fileManager.fileExists(atPath: fullPath) {
+                fileManager.createFile(atPath: fullPath, contents: nil, attributes: nil)
+            }
+            
+            // 打开文件进行写入
+            if let handle = FileHandle(forWritingAtPath: fullPath) {
+                try handle.seekToEnd()
+                self.fileHandle = handle
+                
+                // 写入一条启动日志
+                let startupLog = "=== 日志系统启动 [\(logTimeDateFormatter.string(from: Date()))] ===\n"
+                if let data = startupLog.data(using: .utf8) {
+                    try handle.write(contentsOf: data)
+                }
+            } else {
+                print("错误：无法打开日志文件进行写入，路径：\(fullPath)")
+            }
+        } catch {
+            print("错误：创建或打开日志文件失败 - \(error.localizedDescription)")
+        }
+    }
     
     private func startFlushTimer() {
         Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
-            self?.checkAndFlushBuffer()
+            self?.synchronizeFile()
         }
     }
     
-    private func checkAndFlushBuffer() {
-        logQueue.async { [weak self] in
-            guard let self = self else { return }
-            let now = Date()
-            if self.logBuffer.count > 0 && 
-               (now.timeIntervalSince(self.lastFlushTime) >= self.flushInterval) {
-                self.flushBuffer()
-            }
+    private func synchronizeFile() {
+        guard let fileHandle = fileHandle else { return }
+        do {
+            try fileHandle.synchronize()
+        } catch {
+            print("错误：同步文件失败 - \(error.localizedDescription)")
         }
     }
     
-    private func flushBuffer() {
-        guard !logBuffer.isEmpty, let logger = logger else { return }
+    public func writeLog(
+        log: String,
+        type: SNPLogInfoType = .info,
+        file: String = #file, 
+        function: String = #function, 
+        line: Int = #line
+    ) {
+        // 获取时间戳
+        let timestamp = logTimeDateFormatter.string(from: Date())
         
-        let logData = logBuffer.joined()
-        CLogger.write(logger, logData)
-        CLogger.flush(logger)
+        let typeString = type.indicator
         
-        logBuffer.removeAll()
-        lastFlushTime = Date()
+        // 构建完整日志
+        let fileName = (file as NSString).lastPathComponent
+        let fullLog = "[\(timestamp)] [\(typeString)] [\(fileName):\(line)] \(function) - \(log)"
+        
+        // 根据配置输出日志
+        if config.logType == .console || config.logType == .file {
+            print(fullLog)
+        }
+        
+        if config.logType == .file {
+            writeToFile(log: fullLog)
+        }
     }
     
     // 获取当前日志文件名
@@ -206,60 +149,58 @@ public class SNPLogManager {
         if today != currentLogDate {
             currentLogDate = today
         }
-        // 在日志文件名中加入设备ID
         return "SNPLog-\(deviceId)-\(currentLogDate).log"
     }
-
+    
     // 写入日志
-    public func writeToFile(log: String) {
+    private func writeToFile(log: String) {
         logQueue.async { [weak self] in
             guard let self = self else { return }
             
-            // 直接添加到缓冲区，因为log参数已经包含了完整的格式化日志
-            self.logBuffer.append(log + "\n")
+            // 确保日志以换行结束
+            let logWithNewline = log.hasSuffix("\n") ? log : log + "\n"
             
-            // 如果缓冲区达到阈值，执行批量写入
-            if self.logBuffer.count >= self.maxBufferSize {
-                self.flushBuffer()
+            if let data = logWithNewline.data(using: .utf8) {
+                do {
+                    if let fileHandle = self.fileHandle {
+                        try fileHandle.write(contentsOf: data)
+                        // 立即刷新到磁盘
+                        try fileHandle.synchronize()
+                    } else {
+                        print("错误：文件句柄为空，尝试重新创建文件句柄")
+                        self.setupLogFile()
+                    }
+                } catch {
+                    print("错误：写入日志失败 - \(error.localizedDescription)")
+                    // 如果写入失败，尝试重新创建文件句柄
+                    self.setupLogFile()
+                }
             }
         }
     }
     
     deinit {
-        if let logger = logger {
-            CLogger.destroy(logger)
+        if let fileHandle = fileHandle {
+            try? fileHandle.synchronize()
+            try? fileHandle.close()
         }
     }
     
     // MARK: - 便捷日志方法
-    public static func debug(_ message: String, file: String = #file, function: String = #function, line: Int = #line) {
-        shared.writeLog(log: message, level: .debug, type: .info, file: file, function: function, line: line)
+    public static func network(_ message: String, file: String = #file, function: String = #function, line: Int = #line) {
+        shared.writeLog(log: message,  type: .network, file: file, function: function, line: line)
     }
     
     public static func info(_ message: String, file: String = #file, function: String = #function, line: Int = #line) {
-        shared.writeLog(log: message, level: .release, type: .info, file: file, function: function, line: line)
+        shared.writeLog(log: message, type: .info, file: file, function: function, line: line)
     }
     
     public static func warning(_ message: String, file: String = #file, function: String = #function, line: Int = #line) {
-        shared.writeLog(log: message, level: .release, type: .warning, file: file, function: function, line: line)
+        shared.writeLog(log: message, type: .warning, file: file, function: function, line: line)
     }
     
     public static func error(_ message: String, file: String = #file, function: String = #function, line: Int = #line) {
-        shared.writeLog(log: message, level: .release, type: .error, file: file, function: function, line: line)
-    }
-    
-    public static func setLogLevel(_ level: SNPLogLevel) {
-        shared.logLevel = level
-    }
-}
-
-// 扩展SNPLogLevel添加指示器
-extension SNPLogLevel {
-    var indicator: String {
-        switch self {
-        case .debug:   return "[DEBUG]"
-        case .release:    return "[INFO]"
-        }
+        shared.writeLog(log: message, type: .error, file: file, function: function, line: line)
     }
 }
 

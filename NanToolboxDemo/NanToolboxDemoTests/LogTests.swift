@@ -32,9 +32,11 @@ final class LogTests: XCTestCase {
             let currentDate = dateFormatter.string(from: Date())
             
             // 构建完整的日志文件路径
-            let logFileName = "SNPLog-simulatorS-\(currentDate)"
+            let logFileName = "SNPLog-simulatorS-\(currentDate).log"
             let fullLogPath = (logPath as NSString).appendingPathComponent(logFileName)
-            
+            print("test log path : \(fullLogPath)")
+            // /Users/zhengnan/Library/Developer/XCTestDevices/E4A8C6C6-904F-4880-8AB2-05F0A3025849/data/Containers/Data/Application/52F2662C-929E-4C6A-96A2-7E60A97FC988/Documents/Logs/SNPLog-simulatorS-2025-06-04
+            // /Users/zhengnan/Library/Developer/XCTestDevices/E4A8C6C6-904F-4880-8AB2-05F0A3025849/data/Containers/Data/Application/52F2662C-929E-4C6A-96A2-7E60A97FC988/Documents/Logs
             XCTAssertTrue(FileManager.default.fileExists(atPath: fullLogPath), "日志文件应该被创建")
             
             // 读取日志文件内容

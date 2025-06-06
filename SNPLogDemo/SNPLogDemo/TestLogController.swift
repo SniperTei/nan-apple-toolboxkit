@@ -65,7 +65,6 @@ class TestLogController: UIViewController {
             }
             Parameters: \(String(describing: requestParams))
             """,
-            level: .debug,
             type: .network
         )
         
@@ -89,7 +88,6 @@ class TestLogController: UIViewController {
                 Response Time: 1.023s
                 Response Data: \(String(describing: responseData))
                 """,
-                level: .debug,
                 type: .network
             )
             
@@ -139,11 +137,19 @@ class TestLogController: UIViewController {
         let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
         let logPath = (documentsPath as NSString).appendingPathComponent("Logs")
         
-        SNPLogManager.setup(config: SNPLogConfig(
+        // 打印实际的日志路径
+        print("设置日志路径: \(logPath)")
+        
+        let config = SNPLogConfig(
             logFilePath: logPath,
-            logFileName: "default.log",
-            deviceId: "simulatorS"
-        ))
+            deviceId: "simulatorS",  // 使用固定的设备ID，方便测试
+            logType: .file
+        )
+        
+        SNPLogManager.setup(config: config)
+        
+        // 写入一条测试日志
+        SNPLogManager.info("日志系统初始化完成")
     }
     
     // MARK: - 测试方法
@@ -303,7 +309,7 @@ class TestLogController: UIViewController {
         
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
-        let currentFileName = "SNPLog-\(dateFormatter.string(from: Date())).log"
+        let currentFileName = "SNPLog-simulatorS-\(dateFormatter.string(from: Date())).log"
         let logFilePath = (logPath as NSString).appendingPathComponent(currentFileName)
         
         do {
@@ -443,20 +449,17 @@ class TestLogController: UIViewController {
                 if count == 1 {
                     SNPLogManager.shared.writeLog(
                         log: "生产者\(id) 开始生产",
-                        level: .debug,
                         type: .info
                     )
                 } else if buffer.count >= maxBufferSize {
                     SNPLogManager.shared.writeLog(
                         log: "生产者\(id) 缓冲区已满",
-                        level: .debug,
                         type: .error
                     )
                 }
                 
                 SNPLogManager.shared.writeLog(
                     log: "生产者\(id) 生产第\(count)个(总第\(totalProduced)个), 当前缓冲区: \(buffer.count)个",
-                    level: .debug,
                     type: .info
                 )
                 semaphore.signal()
@@ -466,7 +469,6 @@ class TestLogController: UIViewController {
         }
         SNPLogManager.shared.writeLog(
             log: "生产者\(id) 完成生产, 共生产: \(count)个",
-            level: .debug,
             type: .info
         )
     }

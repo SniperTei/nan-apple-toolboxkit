@@ -237,15 +237,15 @@ public class SNPLogManager {
     }
     
     public static func info(_ message: String, file: String = #file, function: String = #function, line: Int = #line) {
-        shared.writeLog(log: message, level: .release, type: .info, file: file, function: function, line: line)
+        shared.writeLog(log: message, level: .debug, type: .info, file: file, function: function, line: line)
     }
     
     public static func warning(_ message: String, file: String = #file, function: String = #function, line: Int = #line) {
-        shared.writeLog(log: message, level: .release, type: .warning, file: file, function: function, line: line)
+        shared.writeLog(log: message, level: .debug, type: .warning, file: file, function: function, line: line)
     }
     
     public static func error(_ message: String, file: String = #file, function: String = #function, line: Int = #line) {
-        shared.writeLog(log: message, level: .release, type: .error, file: file, function: function, line: line)
+        shared.writeLog(log: message, level: .debug, type: .error, file: file, function: function, line: line)
     }
 }
 
