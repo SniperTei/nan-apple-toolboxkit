@@ -4,7 +4,20 @@ import Alamofire
 class SNPNetworkManager {
     static let shared = SNPNetworkManager()
     
-    private init() {}
+    private let session: Session
+    private let logger: SNPNetworkLogger
+    
+    // 设置日志处理器
+    func setLogHandler(_ handler: @escaping (SNPNetworkLog) -> Void) {
+        logger.logHandler = handler
+    }
+    
+    private init() {
+        // 创建日志拦截器
+        self.logger = SNPNetworkLogger()
+        // 创建带有日志拦截器的Session
+        self.session = Session(eventMonitors: [logger])
+    }
     
     // 定义网络错误类型
     enum NetworkError: Error {
@@ -33,25 +46,21 @@ class SNPNetworkManager {
         let afHeaders = HTTPHeaders(headers)
         let afEncoding: ParameterEncoding = request.encoding() == .json ? JSONEncoding.default : URLEncoding.default
         
-        // 发起请求
-        AF.request(url,
-                  method: afMethod,
-                  parameters: request.params(),
-                  encoding: afEncoding,
-                  headers: afHeaders)
+        // 使用带有日志拦截器的session发起请求
+        session.request(url,
+                       method: afMethod,
+                       parameters: request.params(),
+                       encoding: afEncoding,
+                       headers: afHeaders)
         .validate()
         .responseDecodable(of: responseType) { response in
-            if SNPNetworkConfig.shared.enableLog {
-                self.logResponse(url: url, headers: headers, params: request.params(), response: response)
-            }
-            
             switch response.result {
             case .success(let value):
                 if value.isSuccess() {
                     completion(.success(value.data))
                 } else {
                     if request.showErrorInfo() {
-                    // 这里可以替换为你自己的弹窗/Toast 
+                        // 这里可以替换为你自己的弹窗/Toast 
                         print("请求失败：\(value.msg)")
                     }
                     completion(.failure(.serverError(code: value.code, message: value.msg)))
@@ -68,24 +77,5 @@ class SNPNetworkManager {
                 }
             }
         }
-    }
-    
-    // 日志打印辅助方法
-    private func logResponse<T>(
-        url: String,
-        headers: [String: String],
-        params: [String: Any]?,
-        response: DataResponse<T, AFError>
-    ) {
-        print("=== Network Request Log ===")
-        print("URL: \(url)")
-        print("Headers: \(headers)")
-        print("Params: \(String(describing: params))")
-        if let data = response.data, let json = try? JSONSerialization.jsonObject(with: data) {
-            print("Response: \(json)")
-        } else {
-            print("Response: \(String(describing: response.value))")
-        }
-        print("=========================")
     }
 }

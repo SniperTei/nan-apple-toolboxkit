@@ -3,101 +3,122 @@ import Alamofire
 
 class NetworkTestViewController: UIViewController {
     
-    private let urlTextField = UITextField()
-    private let sendButton = UIButton(type: .system)
-    private let resultTextView = UITextView()
+    private let tableView = UITableView(frame: .zero, style: .grouped)
+    private let testItems = ["登录接口测试"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        setupData()
     }
     
     private func setupUI() {
         title = "网络测试"
         view.backgroundColor = .white
         
-        // 配置URL输入框
-        urlTextField.borderStyle = .roundedRect
-        urlTextField.placeholder = "请输入请求URL"
-        urlTextField.text = "https://api.github.com"  // 默认URL
-        view.addSubview(urlTextField)
-        urlTextField.translatesAutoresizingMaskIntoConstraints = false
+        // 配置tableView
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
         
-        // 配置发送按钮
-        sendButton.setTitle("发送请求", for: .normal)
-        sendButton.addTarget(self, action: #selector(sendRequestButtonTapped), for: .touchUpInside)
-        view.addSubview(sendButton)
-        sendButton.translatesAutoresizingMaskIntoConstraints = false
-        
-        // 配置结果显示区域
-        resultTextView.isEditable = false
-        resultTextView.font = .systemFont(ofSize: 14)
-        resultTextView.layer.borderWidth = 1
-        resultTextView.layer.borderColor = UIColor.lightGray.cgColor
-        resultTextView.layer.cornerRadius = 5
-        view.addSubview(resultTextView)
-        resultTextView.translatesAutoresizingMaskIntoConstraints = false
-        
-        // 设置约束
+        // 添加tableView
+        view.addSubview(tableView)
+        tableView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            urlTextField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
-            urlTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            urlTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            urlTextField.heightAnchor.constraint(equalToConstant: 40),
-            
-            sendButton.topAnchor.constraint(equalTo: urlTextField.bottomAnchor, constant: 20),
-            sendButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            sendButton.heightAnchor.constraint(equalToConstant: 40),
-            
-            resultTextView.topAnchor.constraint(equalTo: sendButton.bottomAnchor, constant: 20),
-            resultTextView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            resultTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            resultTextView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
+            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
-    
-    @objc private func sendRequestButtonTapped() {
-        guard let urlString = urlTextField.text, !urlString.isEmpty,
-              let url = URL(string: urlString) else {
-            showAlert(message: "请输入有效的URL")
-            return
+
+    private func setupData() {
+        // 设置网络请求的baseUrl
+        SNPNetworkConfig.shared.baseURL = "http://localhost:3000/api"
+
+        // 在初始化网络管理器时设置日志处理
+        // let logger = SNPNetworkLogger
+
+        SNPNetworkManager.shared.setLogHandler { log in
+            print("escape log: \(log)")
+            // 根据日志类型进行不同处理
+            switch log.type {
+            case .request:
+                // 处理请求日志
+                SNPLogManager.network(log.message)
+            case .response:
+                // 处理响应日志
+                SNPLogManager.network(log.message)
+            case .success:
+                // 处理成功日志
+                SNPLogManager.network(log.message)
+            case .error:
+                // 处理错误日志
+                SNPLogManager.error(log.message)
+            }
+            
+            // // 或者使用自定义的日志系统
+            // CustomLogger.log(
+            //     type: log.type,
+            //     message: log.message,
+            //     url: log.url,
+            //     statusCode: log.statusCode,
+            //     timestamp: log.timestamp
+            // )
         }
+    }
+    
+    private func testLoginAPI() {
         
-        // 显示加载状态
-        sendButton.isEnabled = false
-        resultTextView.text = "正在请求..."
+        // 创建登录请求
+        let loginRequest = LoginReqData(username: "admin", password: "password123")
         
-        // 发送网络请求
-        AF.request(url).responseString { [weak self] response in
-            guard let self = self else { return }
-            
-            // 恢复按钮状态
-            self.sendButton.isEnabled = true
-            
-            switch response.result {
-            case .success(let value):
-                // 格式化JSON显示
-                if let data = value.data(using: .utf8),
-                   let json = try? JSONSerialization.jsonObject(with: data),
-                   let prettyData = try? JSONSerialization.data(withJSONObject: json, options: .prettyPrinted),
-                   let prettyString = String(data: prettyData, encoding: .utf8) {
-                    self.resultTextView.text = prettyString
+        // 发送登录请求
+        SNPNetworkManager.shared.request(loginRequest, responseType: LoginResData.self) { result in
+            switch result {
+            case .success(let data):
+                if let userData = data?.user {
+                    let message = """
+                    登录成功！
+                    用户ID: \(userData.id)
+                    用户名: \(userData.username)
+                    昵称: \(userData.nickname ?? "无")
+                    邮箱: \(userData.email ?? "无")
+                    管理员: \(userData.isAdmin ? "是" : "否")
+                    注册时间: \(userData.createdAt)
+                    """
+                    print("登录成功：\(message)")
                 } else {
-                    self.resultTextView.text = value
+                    print("登录成功，但未返回用户信息")
                 }
-                
             case .failure(let error):
-                self.resultTextView.text = "请求失败：\(error.localizedDescription)"
+                print("登录失败：\(error.localizedDescription)")
             }
         }
-        
-        // 收起键盘
-        urlTextField.resignFirstResponder()
     }
     
     private func showAlert(message: String) {
         let alert = UIAlertController(title: "提示", message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "确定", style: .default))
         present(alert, animated: true)
+    }
+}
+
+// MARK: - UITableViewDelegate & UITableViewDataSource
+extension NetworkTestViewController: UITableViewDelegate, UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return testItems.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
+        cell.textLabel?.text = testItems[indexPath.row]
+        cell.accessoryType = .disclosureIndicator
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        testLoginAPI()
     }
 } 
