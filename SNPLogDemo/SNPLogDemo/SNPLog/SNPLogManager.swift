@@ -7,6 +7,11 @@
 
 import Foundation
 
+// 确保这些文件在同一个模块中
+#if SWIFT_PACKAGE
+import SNPLogCore
+#endif
+
 public class SNPLogManager {
     // 单例
     private static var _shared: SNPLogManager?
@@ -82,20 +87,23 @@ public class SNPLogManager {
             // 如果文件不存在，创建文件
             if !fileManager.fileExists(atPath: fullPath) {
                 fileManager.createFile(atPath: fullPath, contents: nil, attributes: nil)
-            }
-            
-            // 打开文件进行写入
-            if let handle = FileHandle(forWritingAtPath: fullPath) {
-                try handle.seekToEnd()
-                self.fileHandle = handle
-                
                 // 写入一条启动日志
-                let startupLog = "=== 日志系统启动 [\(logTimeDateFormatter.string(from: Date()))] ===\n"
-                if let data = startupLog.data(using: .utf8) {
-                    try handle.write(contentsOf: data)
+                if let handle = FileHandle(forWritingAtPath: fullPath) {
+                    try handle.seekToEnd()
+                    let startupLog = "=== 日志系统启动 [\(logTimeDateFormatter.string(from: Date()))] ===\n"
+                    if let data = startupLog.data(using: .utf8) {
+                        try handle.write(contentsOf: data)
+                    }
+                    self.fileHandle = handle
                 }
             } else {
-                print("错误：无法打开日志文件进行写入，路径：\(fullPath)")
+                // 文件已存在，直接打开
+                if let handle = FileHandle(forWritingAtPath: fullPath) {
+                    try handle.seekToEnd()
+                    self.fileHandle = handle
+                } else {
+                    print("错误：无法打开日志文件进行写入，路径：\(fullPath)")
+                }
             }
         } catch {
             print("错误：创建或打开日志文件失败 - \(error.localizedDescription)")
@@ -134,9 +142,9 @@ public class SNPLogManager {
         let fullLog = "[\(timestamp)] [\(typeString)] [\(fileName):\(line)] \(function) - \(log)"
         
         // 根据配置输出日志
-        if config.logType == .console || config.logType == .file {
-            print(fullLog)
-        }
+//        if config.logType == .console || config.logType == .file {
+//            print(fullLog)
+//        }
         
         if config.logType == .file {
             writeToFile(log: fullLog)
@@ -164,16 +172,25 @@ public class SNPLogManager {
                 do {
                     if let fileHandle = self.fileHandle {
                         try fileHandle.write(contentsOf: data)
-                        // 立即刷新到磁盘
                         try fileHandle.synchronize()
                     } else {
-                        print("错误：文件句柄为空，尝试重新创建文件句柄")
+                        print("错误：文件句柄为空，尝试重新打开文件")
                         self.setupLogFile()
+                        // 重试一次写入
+                        if let fileHandle = self.fileHandle {
+                            try fileHandle.write(contentsOf: data)
+                            try fileHandle.synchronize()
+                        }
                     }
                 } catch {
                     print("错误：写入日志失败 - \(error.localizedDescription)")
-                    // 如果写入失败，尝试重新创建文件句柄
+                    // 如果写入失败，尝试重新打开文件
                     self.setupLogFile()
+                    // 重试一次写入
+                    if let fileHandle = self.fileHandle {
+                        try? fileHandle.write(contentsOf: data)
+                        try? fileHandle.synchronize()
+                    }
                 }
             }
         }
@@ -208,10 +225,10 @@ public class SNPLogManager {
 extension SNPLogInfoType {
     var indicator: String {
         switch self {
-        case .info:    return "[INFO]"
-        case .network: return "[NETWORK]"
-        case .error:   return "[ERROR]"
-        case .warning: return "[WARN]"
+        case .info:    return "INFO"
+        case .network: return "NETWORK"
+        case .error:   return "ERROR"
+        case .warning: return "WARN"
         }
     }
 }

@@ -6,8 +6,19 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		7DB42EAD2DF2CAD7001EC5E4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7DB42BE72DDF165D001EC5E4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7DB42BEE2DDF165D001EC5E4;
+			remoteInfo = SNPLogDemo;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		7DB42BEF2DDF165D001EC5E4 /* SNPLogDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SNPLogDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7DB42EA92DF2CAD7001EC5E4 /* SNPLogDemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SNPLogDemoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -29,10 +40,22 @@
 			path = SNPLogDemo;
 			sourceTree = "<group>";
 		};
+		7DB42EAA2DF2CAD7001EC5E4 /* SNPLogDemoTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = SNPLogDemoTests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		7DB42BEC2DDF165D001EC5E4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7DB42EA62DF2CAD7001EC5E4 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -46,6 +69,7 @@
 			isa = PBXGroup;
 			children = (
 				7DB42BF12DDF165D001EC5E4 /* SNPLogDemo */,
+				7DB42EAA2DF2CAD7001EC5E4 /* SNPLogDemoTests */,
 				7DB42BF02DDF165D001EC5E4 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -54,6 +78,7 @@
 			isa = PBXGroup;
 			children = (
 				7DB42BEF2DDF165D001EC5E4 /* SNPLogDemo.app */,
+				7DB42EA92DF2CAD7001EC5E4 /* SNPLogDemoTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -83,6 +108,29 @@
 			productReference = 7DB42BEF2DDF165D001EC5E4 /* SNPLogDemo.app */;
 			productType = "com.apple.product-type.application";
 		};
+		7DB42EA82DF2CAD7001EC5E4 /* SNPLogDemoTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7DB42EB12DF2CAD7001EC5E4 /* Build configuration list for PBXNativeTarget "SNPLogDemoTests" */;
+			buildPhases = (
+				7DB42EA52DF2CAD7001EC5E4 /* Sources */,
+				7DB42EA62DF2CAD7001EC5E4 /* Frameworks */,
+				7DB42EA72DF2CAD7001EC5E4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				7DB42EAE2DF2CAD7001EC5E4 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				7DB42EAA2DF2CAD7001EC5E4 /* SNPLogDemoTests */,
+			);
+			name = SNPLogDemoTests;
+			packageProductDependencies = (
+			);
+			productName = SNPLogDemoTests;
+			productReference = 7DB42EA92DF2CAD7001EC5E4 /* SNPLogDemoTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -95,6 +143,10 @@
 				TargetAttributes = {
 					7DB42BEE2DDF165D001EC5E4 = {
 						CreatedOnToolsVersion = 16.2;
+					};
+					7DB42EA82DF2CAD7001EC5E4 = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 7DB42BEE2DDF165D001EC5E4;
 					};
 				};
 			};
@@ -113,12 +165,20 @@
 			projectRoot = "";
 			targets = (
 				7DB42BEE2DDF165D001EC5E4 /* SNPLogDemo */,
+				7DB42EA82DF2CAD7001EC5E4 /* SNPLogDemoTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		7DB42BED2DDF165D001EC5E4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7DB42EA72DF2CAD7001EC5E4 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -135,7 +195,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		7DB42EA52DF2CAD7001EC5E4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		7DB42EAE2DF2CAD7001EC5E4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7DB42BEE2DDF165D001EC5E4 /* SNPLogDemo */;
+			targetProxy = 7DB42EAD2DF2CAD7001EC5E4 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		7DB42C032DDF165E001EC5E4 /* Debug */ = {
@@ -311,6 +386,40 @@
 			};
 			name = Release;
 		};
+		7DB42EAF2DF2CAD7001EC5E4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sniper.tool.SNPLogDemoTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SNPLogDemo.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SNPLogDemo";
+			};
+			name = Debug;
+		};
+		7DB42EB02DF2CAD7001EC5E4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sniper.tool.SNPLogDemoTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SNPLogDemo.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SNPLogDemo";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -328,6 +437,15 @@
 			buildConfigurations = (
 				7DB42C032DDF165E001EC5E4 /* Debug */,
 				7DB42C042DDF165E001EC5E4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7DB42EB12DF2CAD7001EC5E4 /* Build configuration list for PBXNativeTarget "SNPLogDemoTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7DB42EAF2DF2CAD7001EC5E4 /* Debug */,
+				7DB42EB02DF2CAD7001EC5E4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
