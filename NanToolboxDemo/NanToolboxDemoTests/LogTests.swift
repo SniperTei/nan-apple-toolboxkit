@@ -16,7 +16,7 @@ final class LogTests: XCTestCase {
         // 测试基本日志输出
         let testMessage = "这是一条测试日志"
         
-        // 测试不同级别的日志输出
+        // 写入日志
         SNPLogManager.shared.writeLog(log: testMessage)
         
         // 等待日志写入
@@ -34,9 +34,7 @@ final class LogTests: XCTestCase {
             // 构建完整的日志文件路径
             let logFileName = "SNPLog-simulatorS-\(currentDate).log"
             let fullLogPath = (logPath as NSString).appendingPathComponent(logFileName)
-            print("test log path : \(fullLogPath)")
-            // /Users/zhengnan/Library/Developer/XCTestDevices/E4A8C6C6-904F-4880-8AB2-05F0A3025849/data/Containers/Data/Application/52F2662C-929E-4C6A-96A2-7E60A97FC988/Documents/Logs/SNPLog-simulatorS-2025-06-04
-            // /Users/zhengnan/Library/Developer/XCTestDevices/E4A8C6C6-904F-4880-8AB2-05F0A3025849/data/Containers/Data/Application/52F2662C-929E-4C6A-96A2-7E60A97FC988/Documents/Logs
+            
             XCTAssertTrue(FileManager.default.fileExists(atPath: fullLogPath), "日志文件应该被创建")
             
             // 读取日志文件内容
@@ -77,7 +75,7 @@ final class LogTests: XCTestCase {
             let currentDate = dateFormatter.string(from: Date())
             
             // 构建完整的日志文件路径
-            let logFileName = "SNPLog-simulatorS-\(currentDate)"
+            let logFileName = "SNPLog-simulatorS-\(currentDate).log"
             let fullLogPath = (logPath as NSString).appendingPathComponent(logFileName)
             
             do {
@@ -113,7 +111,7 @@ final class LogTests: XCTestCase {
 //        SNPLogManager.setLogLevel(.release)
         
         // 写入不同级别的日志
-        SNPLogManager.debug(testMessage + "_debug")
+        SNPLogManager.network(testMessage + "_network")
         SNPLogManager.info(testMessage + "_info")
         SNPLogManager.warning(testMessage + "_warning")
         SNPLogManager.error(testMessage + "_error")
@@ -121,14 +119,23 @@ final class LogTests: XCTestCase {
         let exp = expectation(description: "等待日志级别测试")
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
-            let logPath = (documentsPath as NSString).appendingPathComponent("Logs/default.log")
+            let logPath = (documentsPath as NSString).appendingPathComponent("Logs")
+            
+            // 获取当前日期
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd"
+            let currentDate = dateFormatter.string(from: Date())
+            
+            // 构建完整的日志文件路径
+            let logFileName = "SNPLog-simulatorS-\(currentDate).log"
+            let fullLogPath = (logPath as NSString).appendingPathComponent(logFileName)
             
             do {
-                let logContent = try String(contentsOfFile: logPath, encoding: .utf8)
+                let logContent = try String(contentsOfFile: fullLogPath, encoding: .utf8)
                 
-                // debug 和 info 级别的日志不应该出现
-                XCTAssertFalse(logContent.contains(testMessage + "_debug"), "Debug级别的日志不应该出现")
-                XCTAssertFalse(logContent.contains(testMessage + "_info"), "Info级别的日志不应该出现")
+                // network 和 info 级别的日志应该出现
+                XCTAssertTrue(logContent.contains(testMessage + "_network"), "Network级别的日志应该出现")
+                XCTAssertTrue(logContent.contains(testMessage + "_info"), "Info级别的日志应该出现")
                 
                 // warning 和 error 级别的日志应该出现
                 XCTAssertTrue(logContent.contains(testMessage + "_warning"), "Warning级别的日志应该出现")
@@ -149,8 +156,8 @@ final class LogTests: XCTestCase {
         
         SNPLogManager.setup(config: SNPLogConfig(
             logFilePath: logPath,
-            logFileName: "default.log",  // 这个参数实际上不会被使用，因为文件名是自动生成的
-            deviceId: "simulatorS"
+            deviceId: "simulatorS",
+            logType: .file
         ))
     }
 } 

@@ -61,8 +61,8 @@ class LogTestViewController: UIViewController {
         
         SNPLogManager.setup(config: SNPLogConfig(
             logFilePath: logPath,
-            logFileName: "default.log",
-            deviceId: "simulatorS"
+            deviceId: "simulatorS",
+            logType: .file
         ))
     }
     
@@ -95,7 +95,7 @@ class LogTestViewController: UIViewController {
         let currentDate = dateFormatter.string(from: Date())
         
         // 构建完整的日志文件路径
-        let logFileName = "SNPLog-simulatorS-\(currentDate)"
+        let logFileName = "SNPLog-simulatorS-\(currentDate).log"
         let fullLogPath = (logPath as NSString).appendingPathComponent(logFileName)
         
         do {
