@@ -9,8 +9,8 @@ inhibit_all_warnings!
 target 'NanToolboxDemo' do
   use_frameworks!
 
-  pod 'Alamofire'
-
+  pod 'Alamofire' # 网络请求
+  pod 'ZipArchive' # ZIP压缩
 end
 
 target 'NanToolboxDemoTests' do

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5E632F491407544C2D22D14F /* Pods_NanToolboxDemoTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1650527501BE1A9D564458A /* Pods_NanToolboxDemoTests.framework */; };
 		C4096360211BB4FC9FF714D9 /* Pods_NanToolboxDemo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 38C6B99DF18C0D88A40C0862 /* Pods_NanToolboxDemo.framework */; };
 /* End PBXBuildFile section */
 
@@ -33,7 +34,10 @@
 		7DB42DD42DEF41A5001EC5E4 /* NanToolboxDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NanToolboxDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7DB42DEA2DEF41A7001EC5E4 /* NanToolboxDemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NanToolboxDemoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7DB42DF42DEF41A7001EC5E4 /* NanToolboxDemoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NanToolboxDemoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A00316CA1861CB7F7ED08550 /* Pods-NanToolboxDemoTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NanToolboxDemoTests.debug.xcconfig"; path = "Target Support Files/Pods-NanToolboxDemoTests/Pods-NanToolboxDemoTests.debug.xcconfig"; sourceTree = "<group>"; };
+		A1650527501BE1A9D564458A /* Pods_NanToolboxDemoTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_NanToolboxDemoTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B7FB4D39387333E86FBA2D06 /* Pods-NanToolboxDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NanToolboxDemo.debug.xcconfig"; path = "Target Support Files/Pods-NanToolboxDemo/Pods-NanToolboxDemo.debug.xcconfig"; sourceTree = "<group>"; };
+		FB4F54E34B1846BBADDF633E /* Pods-NanToolboxDemoTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NanToolboxDemoTests.release.xcconfig"; path = "Target Support Files/Pods-NanToolboxDemoTests/Pods-NanToolboxDemoTests.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -57,11 +61,15 @@
 		};
 		7DB42DED2DEF41A7001EC5E4 /* NanToolboxDemoTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = NanToolboxDemoTests;
 			sourceTree = "<group>";
 		};
 		7DB42DF72DEF41A7001EC5E4 /* NanToolboxDemoUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = NanToolboxDemoUITests;
 			sourceTree = "<group>";
 		};
@@ -80,6 +88,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5E632F491407544C2D22D14F /* Pods_NanToolboxDemoTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -97,6 +106,7 @@
 			isa = PBXGroup;
 			children = (
 				38C6B99DF18C0D88A40C0862 /* Pods_NanToolboxDemo.framework */,
+				A1650527501BE1A9D564458A /* Pods_NanToolboxDemoTests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -128,6 +138,8 @@
 			children = (
 				B7FB4D39387333E86FBA2D06 /* Pods-NanToolboxDemo.debug.xcconfig */,
 				630D5D82BB6DD7F787B4B7CF /* Pods-NanToolboxDemo.release.xcconfig */,
+				A00316CA1861CB7F7ED08550 /* Pods-NanToolboxDemoTests.debug.xcconfig */,
+				FB4F54E34B1846BBADDF633E /* Pods-NanToolboxDemoTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -161,6 +173,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 7DB42E022DEF41A7001EC5E4 /* Build configuration list for PBXNativeTarget "NanToolboxDemoTests" */;
 			buildPhases = (
+				2006694832724FE58999A40B /* [CP] Check Pods Manifest.lock */,
 				7DB42DE62DEF41A7001EC5E4 /* Sources */,
 				7DB42DE72DEF41A7001EC5E4 /* Frameworks */,
 				7DB42DE82DEF41A7001EC5E4 /* Resources */,
@@ -268,6 +281,28 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		2006694832724FE58999A40B /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-NanToolboxDemoTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
 		C7E85354C744E13A714F6B27 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -526,6 +561,7 @@
 		};
 		7DB42E032DEF41A7001EC5E4 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A00316CA1861CB7F7ED08550 /* Pods-NanToolboxDemoTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -544,6 +580,7 @@
 		};
 		7DB42E042DEF41A7001EC5E4 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = FB4F54E34B1846BBADDF633E /* Pods-NanToolboxDemoTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;

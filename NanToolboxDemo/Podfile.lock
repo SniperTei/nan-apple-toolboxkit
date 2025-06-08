@@ -1,16 +1,20 @@
 PODS:
   - Alamofire (5.7.1)
+  - ZipArchive (1.4.0)
 
 DEPENDENCIES:
   - Alamofire
+  - ZipArchive
 
 SPEC REPOS:
   trunk:
     - Alamofire
+    - ZipArchive
 
 SPEC CHECKSUMS:
   Alamofire: 0123a34370cb170936ae79a8df46cc62b2edeb88
+  ZipArchive: e25a4373192673e3229ac8d6e9f64a3e5713c966
 
-PODFILE CHECKSUM: 77e95704e680696bb2173a64535448e4ccc5faa2
+PODFILE CHECKSUM: 1139cb5b41d69834476bf121a79e529e8f334137
 
 COCOAPODS: 1.16.2
