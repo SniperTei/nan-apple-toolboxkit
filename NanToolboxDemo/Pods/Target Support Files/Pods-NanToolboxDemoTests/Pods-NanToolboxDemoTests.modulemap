@@ -1,6 +1,0 @@
-framework module Pods_NanToolboxDemoTests {
-  umbrella header "Pods-NanToolboxDemoTests-umbrella.h"
-
-  export *
-  module * { export * }
-}

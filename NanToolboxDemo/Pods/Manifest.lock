@@ -1,20 +1,21 @@
 PODS:
   - Alamofire (5.7.1)
-  - ZipArchive (1.4.0)
+  - SSZipArchive (2.4.3)
 
 DEPENDENCIES:
   - Alamofire
-  - ZipArchive
+  - SSZipArchive
 
 SPEC REPOS:
+  https://github.com/CocoaPods/Specs.git:
+    - SSZipArchive
   trunk:
     - Alamofire
-    - ZipArchive
 
 SPEC CHECKSUMS:
   Alamofire: 0123a34370cb170936ae79a8df46cc62b2edeb88
-  ZipArchive: e25a4373192673e3229ac8d6e9f64a3e5713c966
+  SSZipArchive: fe6a26b2a54d5a0890f2567b5cc6de5caa600aef
 
-PODFILE CHECKSUM: 1139cb5b41d69834476bf121a79e529e8f334137
+PODFILE CHECKSUM: 5427415837e501cdf746add00f060ac63828788a
 
 COCOAPODS: 1.16.2

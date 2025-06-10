@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5E632F491407544C2D22D14F /* Pods_NanToolboxDemoTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1650527501BE1A9D564458A /* Pods_NanToolboxDemoTests.framework */; };
+		41C122FA678C7282A8E43D0F /* libPods-NanToolboxDemoTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A9194630AE9BA82FEDD55794 /* libPods-NanToolboxDemoTests.a */; };
 		C4096360211BB4FC9FF714D9 /* Pods_NanToolboxDemo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 38C6B99DF18C0D88A40C0862 /* Pods_NanToolboxDemo.framework */; };
 /* End PBXBuildFile section */
 
@@ -35,7 +35,7 @@
 		7DB42DEA2DEF41A7001EC5E4 /* NanToolboxDemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NanToolboxDemoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7DB42DF42DEF41A7001EC5E4 /* NanToolboxDemoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NanToolboxDemoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A00316CA1861CB7F7ED08550 /* Pods-NanToolboxDemoTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NanToolboxDemoTests.debug.xcconfig"; path = "Target Support Files/Pods-NanToolboxDemoTests/Pods-NanToolboxDemoTests.debug.xcconfig"; sourceTree = "<group>"; };
-		A1650527501BE1A9D564458A /* Pods_NanToolboxDemoTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_NanToolboxDemoTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A9194630AE9BA82FEDD55794 /* libPods-NanToolboxDemoTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NanToolboxDemoTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B7FB4D39387333E86FBA2D06 /* Pods-NanToolboxDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NanToolboxDemo.debug.xcconfig"; path = "Target Support Files/Pods-NanToolboxDemo/Pods-NanToolboxDemo.debug.xcconfig"; sourceTree = "<group>"; };
 		FB4F54E34B1846BBADDF633E /* Pods-NanToolboxDemoTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NanToolboxDemoTests.release.xcconfig"; path = "Target Support Files/Pods-NanToolboxDemoTests/Pods-NanToolboxDemoTests.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -61,15 +61,11 @@
 		};
 		7DB42DED2DEF41A7001EC5E4 /* NanToolboxDemoTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = NanToolboxDemoTests;
 			sourceTree = "<group>";
 		};
 		7DB42DF72DEF41A7001EC5E4 /* NanToolboxDemoUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = NanToolboxDemoUITests;
 			sourceTree = "<group>";
 		};
@@ -88,7 +84,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5E632F491407544C2D22D14F /* Pods_NanToolboxDemoTests.framework in Frameworks */,
+				41C122FA678C7282A8E43D0F /* libPods-NanToolboxDemoTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -106,7 +102,7 @@
 			isa = PBXGroup;
 			children = (
 				38C6B99DF18C0D88A40C0862 /* Pods_NanToolboxDemo.framework */,
-				A1650527501BE1A9D564458A /* Pods_NanToolboxDemoTests.framework */,
+				A9194630AE9BA82FEDD55794 /* libPods-NanToolboxDemoTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -398,6 +394,7 @@
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 14;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -427,6 +424,7 @@
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 14;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

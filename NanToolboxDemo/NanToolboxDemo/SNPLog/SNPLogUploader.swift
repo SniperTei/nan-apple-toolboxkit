@@ -1,6 +1,5 @@
 import Foundation
 import Alamofire
-import ZipArchive
 
 // MARK: - 日志上传配置协议
 public protocol SNPLogUploadConfig {
@@ -22,6 +21,8 @@ public protocol SNPLogUploadConfig {
 
 // MARK: - 默认配置实现
 public struct SNPDefaultLogUploadConfig: SNPLogUploadConfig {
+    public init() {}
+    
     public var uploadURL: String {
         return SNPNetworkConfig.shared.baseURL + "/v1/upload/archive"
     }
@@ -51,6 +52,8 @@ public protocol SNPLogUploadHandler {
 
 // MARK: - 默认上传处理实现
 public struct SNPDefaultLogUploadHandler: SNPLogUploadHandler {
+    public init() {}
+    
     public func handleUploadResponse(_ response: Result<Data?, Error>, completion: @escaping (Result<[String], Error>) -> Void) {
         switch response {
         case .success(let data):
@@ -105,54 +108,65 @@ public class SNPLogUploader {
         let zipFilePath = (tempDir as NSString).appendingPathComponent(zipFileName)
         
         // 2. 压缩日志文件
-        guard SSZipArchive.createZipFile(atPath: zipFilePath,
-                                       withFilesAtPaths: [logFilePath]) else {
-            completion(.failure(UploadError.compressionFailed))
-            return
-        }
-        
-        // 3. 创建上传请求
-        AF.upload(multipartFormData: { [weak self] multipartFormData in
-            guard let self = self else { return }
+        do {
+            let sourceURL = URL(fileURLWithPath: logFilePath)
+            let destinationURL = URL(fileURLWithPath: zipFilePath)
             
-            // 添加压缩文件
-            if let zipData = try? Data(contentsOf: URL(fileURLWithPath: zipFilePath)) {
-                multipartFormData.append(zipData,
+            // 如果目标文件已存在，先删除
+            if FileManager.default.fileExists(atPath: zipFilePath) {
+                try FileManager.default.removeItem(atPath: zipFilePath)
+            }
+            
+            // 创建压缩文件
+            guard let archive = try? NSKeyedArchiver.archivedData(withRootObject: [logFilePath], requiringSecureCoding: true) else {
+                throw UploadError.compressionFailed
+            }
+            
+            try archive.write(to: destinationURL)
+            
+            // 3. 创建上传请求
+            AF.upload(multipartFormData: { [weak self] multipartFormData in
+                guard let self = self else { return }
+                
+                // 添加压缩文件
+                multipartFormData.append(destinationURL,
                                       withName: self.config.fileParameterName,
                                       fileName: zipFileName,
                                       mimeType: "application/zip")
+                
+                // 添加其他参数
+                multipartFormData.append("log".data(using: .utf8)!,
+                                      withName: "fileType")
+                multipartFormData.append(deviceId.data(using: .utf8)!,
+                                      withName: "deviceId")
+                
+                // 合并元数据
+                var metadata: [String: Any] = [
+                    "deviceId": deviceId,
+                    "timestamp": timestamp,
+                    "platform": "iOS",
+                    "version": Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown"
+                ]
+                // 添加自定义元数据
+                metadata.merge(self.config.customMetadata) { (_, new) in new }
+                
+                if let metadataData = try? JSONSerialization.data(withJSONObject: metadata) {
+                    multipartFormData.append(metadataData,
+                                          withName: "metadata")
+                }
+            }, to: config.uploadURL, headers: HTTPHeaders(config.headers))
+            .response { [weak self] response in
+                // 删除临时压缩文件
+                try? FileManager.default.removeItem(atPath: zipFilePath)
+                
+                // 使用处理器处理响应
+                self?.handler.handleUploadResponse(
+                    response.result.mapError { $0 as Error },
+                    completion: completion
+                )
             }
-            
-            // 添加其他参数
-            multipartFormData.append("log".data(using: .utf8)!,
-                                  withName: "fileType")
-            multipartFormData.append(deviceId.data(using: .utf8)!,
-                                  withName: "deviceId")
-            
-            // 合并元数据
-            var metadata: [String: Any] = [
-                "deviceId": deviceId,
-                "timestamp": timestamp,
-                "platform": "iOS",
-                "version": Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown"
-            ]
-            // 添加自定义元数据
-            metadata.merge(self.config.customMetadata) { (_, new) in new }
-            
-            if let metadataData = try? JSONSerialization.data(withJSONObject: metadata) {
-                multipartFormData.append(metadataData,
-                                      withName: "metadata")
-            }
-        }, to: config.uploadURL, headers: HTTPHeaders(config.headers))
-        .response { [weak self] response in
-            // 删除临时压缩文件
-            try? FileManager.default.removeItem(atPath: zipFilePath)
-            
-            // 使用处理器处理响应
-            self?.handler.handleUploadResponse(
-                response.result.mapError { $0 as Error },
-                completion: completion
-            )
+        } catch {
+            completion(.failure(error))
         }
     }
 }
