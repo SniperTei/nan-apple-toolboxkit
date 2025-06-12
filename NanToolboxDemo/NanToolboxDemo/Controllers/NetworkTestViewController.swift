@@ -4,7 +4,7 @@ import Alamofire
 class NetworkTestViewController: UIViewController {
     
     private let tableView = UITableView(frame: .zero, style: .grouped)
-    private let testItems = ["登录接口测试"]
+    private let testItems = ["登录接口测试", "日志上传测试"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -97,10 +97,83 @@ class NetworkTestViewController: UIViewController {
         }
     }
     
+    private func testUploadLog() {
+        // 获取日志文件路径
+        let logFilePath = logFilePath()
+        
+        // 检查文件是否存在
+        guard FileManager.default.fileExists(atPath: logFilePath) else {
+            showAlert(message: "日志文件不存在：\(logFilePath)")
+            return
+        }
+        
+        // 设置认证token
+        var config = SNPDefaultLogUploadConfig()
+        config.setAuthToken(token())
+        SNPLogUploader.shared.config = config
+        
+        // 上传日志文件
+        SNPLogUploader.shared.uploadLog(
+            logFilePath: logFilePath,
+            deviceId: "simulatorS"
+        ) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let urls):
+                    let message = """
+                    日志上传成功！
+                    文件路径：\(urls.joined(separator: "\n"))
+                    """
+                    self.showAlert(message: message)
+                    
+                case .failure(let error):
+                    self.showAlert(message: "日志上传失败：\(error.localizedDescription)")
+                }
+            }
+        }
+    }
+    
     private func showAlert(message: String) {
         let alert = UIAlertController(title: "提示", message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "确定", style: .default))
         present(alert, animated: true)
+    }
+
+    private func logFilePath() -> String {
+        // 验证日志文件是否存在
+        let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
+        let logPath = (documentsPath as NSString).appendingPathComponent("Logs")
+        
+        // 确保日志目录存在
+        if !FileManager.default.fileExists(atPath: logPath) {
+            try? FileManager.default.createDirectory(atPath: logPath, withIntermediateDirectories: true)
+        }
+        
+        // 获取当前日期
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        let currentDate = dateFormatter.string(from: Date())
+        
+        // 构建完整的日志文件路径
+        let logFileName = "SNPLog-simulatorS-\(currentDate).log"
+        let fullLogPath = (logPath as NSString).appendingPathComponent(logFileName)
+        
+        // 如果文件不存在，创建一个测试日志
+        if !FileManager.default.fileExists(atPath: fullLogPath) {
+            let testLog = """
+            [INFO] \(Date()) 测试日志开始
+            [DEBUG] 这是一条测试日志记录
+            [INFO] 测试日志结束
+            """
+            try? testLog.write(to: URL(fileURLWithPath: fullLogPath), atomically: true, encoding: .utf8)
+        }
+        
+        return fullLogPath
+    }
+
+    private func token() -> String {
+        // 登录成功后返回的token
+        return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODQ1MzE2NWFkNDVjNTUzNTc5MTY4YzUiLCJpYXQiOjE3NDk3MDI5MjMsImV4cCI6MTc0OTc4OTMyM30.czSOyDb5P0zAm0eFTomzdiKtHCxehXLyQW067rEk8d0"
     }
 }
 
@@ -119,6 +192,14 @@ extension NetworkTestViewController: UITableViewDelegate, UITableViewDataSource 
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        testLoginAPI()
+        
+        switch indexPath.row {
+        case 0:
+            testLoginAPI()
+        case 1:
+            testUploadLog()
+        default:
+            break
+        }
     }
 } 

@@ -184,12 +184,11 @@ Authorization: Bearer <token>
 
 ### 5. 文件上传
 
+#### 5.1 单文件上传
+
 **请求方式**
-- POST `/api/v1/upload/image`    // 上传图片
-- POST `/api/v1/upload/document` // 上传文档
-- POST `/api/v1/upload/audio`    // 上传音频
-- POST `/api/v1/upload/video`    // 上传视频
-- POST `/api/v1/upload/archive`  // 上传压缩文件
+- POST `/api/v1/upload/single/image`    // 上传单个图片
+- POST `/api/v1/upload/single/archive`  // 上传单个压缩文件
 
 **请求头**
 ```

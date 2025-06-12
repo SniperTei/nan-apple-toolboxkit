@@ -15,6 +15,9 @@ public protocol SNPLogUploadConfig {
     /// 自定义元数据
     var customMetadata: [String: Any] { get }
     
+    /// 认证Token
+    var authToken: String? { get }
+    
     /// 压缩文件名格式化
     func formatZipFileName(deviceId: String, timestamp: String) -> String
 }
@@ -23,42 +26,56 @@ public protocol SNPLogUploadConfig {
 public struct SNPDefaultLogUploadConfig: SNPLogUploadConfig {
     public init() {}
     
+    private var _authToken: String?
+    
     public var uploadURL: String {
-        return SNPNetworkConfig.shared.baseURL + "/v1/upload/archive"
+        return SNPNetworkConfig.shared.baseURL + "/v1/upload/single/archive"
     }
     
     public var headers: [String: String] {
-        return SNPNetworkConfig.shared.commonHeaders
+        var headers = SNPNetworkConfig.shared.commonHeaders
+        if let token = authToken {
+            headers["Authorization"] = "Bearer \(token)"
+        }
+        return headers
     }
     
     public var fileParameterName: String {
-        return "fileList"
+        return "file"
     }
     
     public var customMetadata: [String: Any] {
         return [:]
     }
     
+    public var authToken: String? {
+        return _authToken
+    }
+    
     public func formatZipFileName(deviceId: String, timestamp: String) -> String {
         return "SNPLog-\(deviceId)-\(timestamp).zip"
+    }
+    
+    // 添加设置token的方法
+    public mutating func setAuthToken(_ token: String?) {
+        _authToken = token
     }
 }
 
 // MARK: - 日志上传处理协议
 public protocol SNPLogUploadHandler {
     /// 处理上传结果
-    func handleUploadResponse(_ response: Result<Data?, Error>, completion: @escaping (Result<[String], Error>) -> Void)
+    func handleUploadResponse(_ response: Result<Data, Error>, completion: @escaping (Result<[String], Error>) -> Void)
 }
 
 // MARK: - 默认上传处理实现
 public struct SNPDefaultLogUploadHandler: SNPLogUploadHandler {
     public init() {}
     
-    public func handleUploadResponse(_ response: Result<Data?, Error>, completion: @escaping (Result<[String], Error>) -> Void) {
+    public func handleUploadResponse(_ response: Result<Data, Error>, completion: @escaping (Result<[String], Error>) -> Void) {
         switch response {
         case .success(let data):
-            guard let data = data,
-                  let uploadResponse = try? JSONDecoder().decode(SNPLogUploader.UploadResponse.self, from: data)
+            guard let uploadResponse = try? JSONDecoder().decode(SNPLogUploader.UploadResponse.self, from: data)
             else {
                 completion(.failure(SNPLogUploader.UploadError.invalidResponse))
                 return
@@ -99,6 +116,16 @@ public class SNPLogUploader {
     ///   - deviceId: 设备ID
     ///   - completion: 完成回调
     public func uploadLog(logFilePath: String, deviceId: String, completion: @escaping (Result<[String], Error>) -> Void) {
+        print("开始上传日志流程...")
+        print("原始日志文件路径: \(logFilePath)")
+        
+        // 检查源文件是否存在
+        guard FileManager.default.fileExists(atPath: logFilePath) else {
+            print("错误：源日志文件不存在")
+            completion(.failure(UploadError.compressionFailed))
+            return
+        }
+        
         // 1. 创建临时压缩文件路径
         let tempDir = NSTemporaryDirectory()
         let dateFormatter = DateFormatter()
@@ -106,6 +133,8 @@ public class SNPLogUploader {
         let timestamp = dateFormatter.string(from: Date())
         let zipFileName = config.formatZipFileName(deviceId: deviceId, timestamp: timestamp)
         let zipFilePath = (tempDir as NSString).appendingPathComponent(zipFileName)
+        
+        print("准备创建压缩文件: \(zipFilePath)")
         
         // 2. 压缩日志文件
         do {
@@ -115,14 +144,33 @@ public class SNPLogUploader {
             // 如果目标文件已存在，先删除
             if FileManager.default.fileExists(atPath: zipFilePath) {
                 try FileManager.default.removeItem(atPath: zipFilePath)
+                print("删除已存在的压缩文件")
             }
             
+            // 读取源文件内容
+            let fileData = try Data(contentsOf: sourceURL)
+            print("成功读取源文件，大小: \(fileData.count) bytes")
+            
             // 创建压缩文件
-            guard let archive = try? NSKeyedArchiver.archivedData(withRootObject: [logFilePath], requiringSecureCoding: true) else {
+            let archive = try NSKeyedArchiver.archivedData(withRootObject: [logFilePath], requiringSecureCoding: true)
+            try archive.write(to: destinationURL)
+            
+            // 验证压缩文件
+            if FileManager.default.fileExists(atPath: zipFilePath) {
+                let zipFileAttributes = try FileManager.default.attributesOfItem(atPath: zipFilePath)
+                let zipFileSize = zipFileAttributes[.size] as? UInt64 ?? 0
+                print("压缩文件创建成功:")
+                print("- 路径: \(zipFilePath)")
+                print("- 大小: \(zipFileSize) bytes")
+            } else {
+                print("错误：压缩文件创建失败，文件不存在")
                 throw UploadError.compressionFailed
             }
             
-            try archive.write(to: destinationURL)
+            print("\n准备上传请求:")
+            print("- URL: \(config.uploadURL)")
+            print("- 文件参数名: \(config.fileParameterName)")
+            print("- Headers: \(config.headers)")
             
             // 3. 创建上传请求
             AF.upload(multipartFormData: { [weak self] multipartFormData in
@@ -130,7 +178,7 @@ public class SNPLogUploader {
                 
                 // 添加压缩文件
                 multipartFormData.append(destinationURL,
-                                      withName: self.config.fileParameterName,
+                                      withName: "\(self.config.fileParameterName)[]",
                                       fileName: zipFileName,
                                       mimeType: "application/zip")
                 
@@ -154,10 +202,22 @@ public class SNPLogUploader {
                     multipartFormData.append(metadataData,
                                           withName: "metadata")
                 }
+                
+                print("\n请求表单数据:")
+                print("- 文件名: \(zipFileName)")
+                print("- 设备ID: \(deviceId)")
+                print("- 元数据: \(metadata)")
+                
             }, to: config.uploadURL, headers: HTTPHeaders(config.headers))
-            .response { [weak self] response in
+            .responseData { [weak self] response in
                 // 删除临时压缩文件
                 try? FileManager.default.removeItem(atPath: zipFilePath)
+                print("\n收到服务器响应:")
+                print("- 状态码: \(response.response?.statusCode ?? 0)")
+                if let data = response.data,
+                   let responseString = String(data: data, encoding: .utf8) {
+                    print("- 响应内容: \(responseString)")
+                }
                 
                 // 使用处理器处理响应
                 self?.handler.handleUploadResponse(
@@ -166,6 +226,7 @@ public class SNPLogUploader {
                 )
             }
         } catch {
+            print("压缩文件失败: \(error)")
             completion(.failure(error))
         }
     }
