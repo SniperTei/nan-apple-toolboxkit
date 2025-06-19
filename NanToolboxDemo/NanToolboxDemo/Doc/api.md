@@ -199,6 +199,7 @@ Authorization: Bearer <token>
 - fileList: 文件数组（1-9个文件）
 - fileType: 文件类型（可选，当上传日志文件时设置为 'log'）
 - deviceId: 设备ID（当 fileType='log' 时必需）
+- projectName: 项目名（当 fileType='log' 时必需）
 - logType: 日志类型（可选，当 fileType='log' 时有效，可选值：error/info/warning/debug）
 - content: 日志内容（当 fileType='log' 时必需）
 - metadata: 额外信息（可选，JSON 字符串）
@@ -300,5 +301,62 @@ Authorization: Bearer <token>
   "msg": "用户名或邮箱已存在",
   "data": null,
   "timestamp": "2023-12-20 14:11:30.123"
+}
+```
+
+### 2.1 获取日志列表（支持按设备ID、项目名和日期筛选）
+
+**接口说明**
+获取上传文件的日志记录，支持按设备ID、项目名和日期进行筛选，结果分页返回。
+
+**请求方式**
+- GET `/api/v1/logs`
+
+**请求头**
+```
+Authorization: Bearer <token>
+```
+
+**请求参数**
+```json
+{
+  "deviceId": "string",    // 可选，设备ID
+  "projectName": "string", // 可选，项目名
+  "date": "string",       // 可选，日期（格式：YYYY-MM-DD）
+  "page": number,         // 可选，页码，默认1
+  "limit": number         // 可选，每页数量，默认10
+}
+```
+
+**成功响应**
+```json
+{
+  "code": "000000",
+  "statusCode": 200,
+  "msg": "Success",
+  "data": {
+    "logs": [
+      {
+        "deviceId": "device123",
+        "projectName": "项目A",
+        "date": "2024-03-20",
+        "fileUrl": "http://localhost:3000/uploads/document/uuid.log",
+        "fileName": "error.log",
+        "fileSize": 1024,
+        "metadata": {
+          "fileType": "log",
+          "uploadType": "single"
+        },
+        "createdAt": "2024-03-20T06:11:30.123Z"
+      }
+    ],
+    "pagination": {
+      "total": 100,
+      "page": 1,
+      "limit": 10,
+      "pages": 10
+    }
+  },
+  "timestamp": "2024-03-20 14:11:30.123"
 }
 ```

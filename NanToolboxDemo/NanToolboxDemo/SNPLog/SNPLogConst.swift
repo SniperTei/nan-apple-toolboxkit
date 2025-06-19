@@ -19,5 +19,6 @@ public enum SNPLogInfoType {
     case network
     case error
     case warning
+    case crash
 }
 

@@ -219,6 +219,10 @@ public class SNPLogManager {
     public static func error(_ message: String, file: String = #file, function: String = #function, line: Int = #line) {
         shared.writeLog(log: message, type: .error, file: file, function: function, line: line)
     }
+    
+    public static func crash(_ message: String, file: String = #file, function: String = #function, line: Int = #line) {
+        shared.writeLog(log: message, type: .crash, file: file, function: function, line: line)
+    }
 }
 
 // 扩展SNPLogInfoType添加指示器
@@ -229,6 +233,7 @@ extension SNPLogInfoType {
         case .network: return "NETWORK"
         case .error:   return "ERROR"
         case .warning: return "WARN"
+        case .crash:   return "CRASH"
         }
     }
 }

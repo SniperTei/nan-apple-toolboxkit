@@ -1,0 +1,155 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# NanToolboxDemo 项目结构
+
+## 功能模块
+
+### 监控模块 (SNPMonitor)
+监控模块位于 `NanToolboxDemo/SNPMonitor` 目录下，负责应用崩溃监控：
+
+- 崩溃监控：[SNPCrashMonitor.swift](mdc:NanToolboxDemo/SNPMonitor/SNPCrashMonitor.swift)
+  - 负责捕获和处理应用崩溃
+  - 支持异常和信号两种崩溃类型
+  - 通过代理模式通知外部处理崩溃信息
+
+- 信号处理：[SNPSignalHandler.swift](mdc:NanToolboxDemo/SNPMonitor/Utils/SNPSignalHandler.swift)
+  - 处理系统信号
+  - 提供信号处理器的设置和移除功能
+
+- 崩溃模型：[SNPCrashModel.swift](mdc:NanToolboxDemo/SNPMonitor/Models/SNPCrashModel.swift)
+  - 定义崩溃信息的数据结构
+  - 包含崩溃类型、名称、原因等信息
+
+### 网络模块 (SNPNetwork)
+网络模块位于 `NanToolboxDemo/SNPNetwork` 目录下，负责网络请求处理：
+
+- 网络请求管理
+- 请求拦截器
+- 响应处理
+- 错误处理
+
+### 日志模块 (SNPLog)
+日志模块位于 `NanToolboxDemo/SNPLog` 目录下，负责日志记录：
+
+- 日志管理
+- 日志格式化
+- 日志存储
+- 日志分析
+
+### 公共组件
+所有模块共用的基础组件：
+
+- 设备信息：[DeviceInfo.swift](mdc:NanToolboxDemo/SNPMonitor/Models/DeviceInfo.swift)
+  - 定义设备信息的数据结构
+  - 提供获取当前设备信息的静态方法
+
+## 测试模块
+测试模块位于 `NanToolboxDemo/Controllers` 目录下，用于测试各个功能模块：
+
+- 主测试控制器：[TestController.swift](mdc:NanToolboxDemo/Controllers/TestController.swift)
+  - 提供功能测试的入口
+  - 包含各个模块的测试入口
+
+- 崩溃测试控制器：[SNPCrashTestController.swift](mdc:NanToolboxDemo/Controllers/SNPCrashTestController.swift)
+  - 提供崩溃测试的UI界面
+  - 支持多种崩溃场景的测试
+  - 显示崩溃信息的日志视图
+
+## 项目配置
+
+### CocoaPods 配置
+- Podfile：定义项目依赖
+- Podfile.lock：锁定依赖版本
+- Pods 目录：存放第三方库
+
+### 项目结构
+```
+NanToolboxDemo/
+├── NanToolboxDemo/          # 主项目代码
+│   ├── SNPMonitor/         # 监控模块
+│   │   ├── Models/        # 数据模型
+│   │   ├── Utils/         # 工具类
+│   │   └── Protocols/     # 协议定义
+│   ├── SNPNetwork/        # 网络模块
+│   │   ├── Models/        # 数据模型
+│   │   ├── Utils/         # 工具类
+│   │   └── Protocols/     # 协议定义
+│   ├── SNPLog/           # 日志模块
+│   │   ├── Models/        # 数据模型
+│   │   ├── Utils/         # 工具类
+│   │   └── Protocols/     # 协议定义
+│   └── Controllers/       # 测试控制器
+├── Pods/                   # CocoaPods 依赖
+├── NanToolboxDemo.xcodeproj/  # Xcode 项目文件
+└── NanToolboxDemo.xcworkspace/ # CocoaPods 工作空间
+```
+
+## 模块设计原则
+
+### 模块独立性
+1. 每个 SNP 前缀的模块都是独立的功能模块
+2. 模块之间是平级关系，没有主从之分
+3. 每个模块负责特定的功能领域
+4. 模块可以独立使用和测试
+
+### 低耦合设计
+1. 模块间通过协议通信
+2. 避免模块间直接依赖
+3. 使用依赖注入
+4. 每个模块独立维护自己的资源
+
+### 模块职责
+1. 模块内部高内聚
+2. 模块间低耦合
+3. 通过接口定义模块边界
+4. 保持接口简单明确
+
+### 扩展性
+1. 新模块可以独立添加
+2. 模块可以独立升级
+3. 模块可以独立测试
+4. 模块可以独立部署
+
+## 使用说明
+
+1. 模块使用：
+   ```swift
+   // 监控模块
+   SNPCrashMonitor.shared.delegate = self
+   SNPCrashMonitor.shared.startMonitoring()
+   
+   // 网络模块
+   // TODO: 添加网络模块使用示例
+   
+   // 日志模块
+   // TODO: 添加日志模块使用示例
+   ```
+
+2. 测试方法：
+   - 通过 TestController 进入测试界面
+   - 选择要测试的模块
+   - 执行相应的测试操作
+   - 查看测试结果
+
+## 注意事项
+
+1. 模块开发：
+   - 遵循模块设计原则
+   - 保持模块独立性
+   - 通过协议定义接口
+   - 避免模块间直接依赖
+
+2. 依赖管理：
+   - 使用 CocoaPods 管理依赖
+   - 不要直接修改 Pods 目录
+   - 添加新的依赖时使用 `pod install`
+   - 定期更新依赖版本
+
+3. 测试要求：
+   - 每个模块都需要有对应的测试控制器
+   - 测试控制器只用于测试，不包含业务逻辑
+   - 测试用例要覆盖主要功能
+   - 测试结果要清晰展示

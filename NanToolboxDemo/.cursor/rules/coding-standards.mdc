@@ -1,0 +1,119 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# NanToolboxDemo 编码规范
+
+## 命名规范
+
+### 类名
+- 使用大驼峰命名法（UpperCamelCase）
+- 类名应该清晰表达其功能
+- 示例：
+  - `SNPCrashMonitor`
+  - `SNPSignalHandler`
+  - `SNPCrashTestController`
+
+### 协议名
+- 使用大驼峰命名法
+- 以 Delegate 结尾表示代理协议
+- 示例：
+  - `SNPUncaughtExceptionHandlerDelegate`
+
+### 方法名
+- 使用小驼峰命名法（lowerCamelCase）
+- 方法名应该是动词或动词短语
+- 示例：
+  - `startMonitoring()`
+  - `handleException(_:)`
+  - `setupSignalHandler(handler:)`
+
+### 属性名
+- 使用小驼峰命名法
+- 私有属性以下划线开头
+- 示例：
+  - `isMonitoring`
+  - `signalHandler`
+
+## 文件组织
+
+### 目录结构
+- Models：数据模型
+- Utils：工具类
+- Protocols：协议定义
+- Controllers：视图控制器
+
+### 文件命名
+- 文件名应该与类名一致
+- 使用 .swift 扩展名
+- 示例：
+  - `SNPCrashMonitor.swift`
+  - `DeviceInfo.swift`
+
+## 代码风格
+
+### 访问控制
+- 公开的API使用 `public` 修饰
+- 内部使用的API使用 `internal` 或默认访问级别
+- 私有实现使用 `private` 修饰
+
+### 注释规范
+- 使用 MARK 分隔代码块
+- 为公开的API添加文档注释
+- 示例：
+  ```swift
+  // MARK: - Properties
+  
+  /// 启动崩溃监控
+  /// - 设置未捕获异常处理器
+  /// - 设置信号处理器
+  public func startMonitoring() {
+      // ...
+  }
+  ```
+
+### 代码格式
+- 使用 4 个空格缩进
+- 大括号独占一行
+- 运算符前后加空格
+- 示例：
+  ```swift
+  if condition {
+      // code
+  }
+  
+  let result = a + b
+  ```
+
+## 最佳实践
+
+### 内存管理
+- 使用 `weak` 避免循环引用
+- 在闭包中使用 `[weak self]`
+- 示例：
+  ```swift
+  NSSetUncaughtExceptionHandler { [weak self] exception in
+      self?.handleException(exception)
+  }
+  ```
+
+### 错误处理
+- 使用可选类型处理可能为空的值
+- 使用 guard 语句进行提前返回
+- 示例：
+  ```swift
+  guard !isMonitoring else { return }
+  ```
+
+### UI 实现
+- 使用代码创建 UI 组件
+- 使用 Auto Layout 进行布局
+- 示例：
+  ```swift
+  private let stackView: UIStackView = {
+      let stack = UIStackView()
+      stack.axis = .vertical
+      return stack
+  }()
+  ```

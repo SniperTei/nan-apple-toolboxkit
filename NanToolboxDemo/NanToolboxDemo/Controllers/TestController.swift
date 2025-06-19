@@ -3,7 +3,7 @@ import UIKit
 class TestController: UIViewController {
     
     private let tableView = UITableView(frame: .zero, style: .grouped)
-    private let testItems = ["测试日志", "测试网络"]
+    private let testItems = ["测试日志", "测试网络", "测试崩溃"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -54,6 +54,9 @@ extension TestController: UITableViewDelegate, UITableViewDataSource {
         case 1:
             let networkTestVC = NetworkTestViewController()
             navigationController?.pushViewController(networkTestVC, animated: true)
+        case 2:
+            let crashTestVC = SNPCrashTestController()
+            navigationController?.pushViewController(crashTestVC, animated: true)
         default:
             break
         }
