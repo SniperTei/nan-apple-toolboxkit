@@ -1,0 +1,4 @@
+module CCode [system] {
+    header "snp_log_writer.h"
+    export *
+}
