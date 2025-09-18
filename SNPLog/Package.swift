@@ -9,25 +9,16 @@ let package = Package(
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
             name: "SNPLog",
-            targets: ["SwiftCode"]),
+            targets: ["SNPLog"]),
     ],
     targets: [
-        // C语言target
+        // Targets are the basic building blocks of a package, defining a module or a test suite.
+        // Targets can depend on other targets in this package and products from dependencies.
         .target(
-            name: "CCode",
-            publicHeadersPath: "include",
-            cSettings: [
-                .define("DEBUG", .when(configuration: .debug))
-            ]
-        ),
-        // Swift语言target，依赖C语言target
-        .target(
-            name: "SwiftCode",
-            dependencies: ["CCode"]
-        ),
+            name: "SNPLog"),
         .testTarget(
             name: "SNPLogTests",
-            dependencies: ["SwiftCode"]
+            dependencies: ["SNPLog"]
         ),
     ]
 )
