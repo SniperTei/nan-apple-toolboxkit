@@ -6,16 +6,28 @@ import PackageDescription
 let package = Package(
     name: "MNLogger",
     products: [
-        // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
             name: "MNLogger",
-            targets: ["MNLogger"]),
+            targets: ["MNLogger"]
+        ),
     ],
     targets: [
-        // Targets are the basic building blocks of a package, defining a module or a test suite.
-        // Targets can depend on other targets in this package and products from dependencies.
         .target(
-            name: "MNLogger"),
+            name: "MNLoggerCore",
+            path: "Sources/MNLoggerCore",
+            sources: ["mn_logger_core.c"],
+            publicHeadersPath: "include",
+            cSettings: [
+                .headerSearchPath("include"),
+                .unsafeFlags(["-std=c11"])
+            ]
+        ),
+        .target(
+            name: "MNLogger",
+            dependencies: ["MNLoggerCore"],
+            path: "Sources/MNLogger",
+            sources: ["MNLogger.swift"]
+        ),
         .testTarget(
             name: "MNLoggerTests",
             dependencies: ["MNLogger"]
