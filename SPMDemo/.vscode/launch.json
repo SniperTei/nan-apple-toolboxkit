@@ -1,0 +1,22 @@
+{
+  "configurations": [
+    {
+      "type": "swift",
+      "request": "launch",
+      "args": [],
+      "cwd": "${workspaceFolder:SPMDemo}",
+      "name": "Debug SPMDemoApp",
+      "program": "${workspaceFolder:SPMDemo}/.build/debug/SPMDemoApp",
+      "preLaunchTask": "swift: Build Debug SPMDemoApp"
+    },
+    {
+      "type": "swift",
+      "request": "launch",
+      "args": [],
+      "cwd": "${workspaceFolder:SPMDemo}",
+      "name": "Release SPMDemoApp",
+      "program": "${workspaceFolder:SPMDemo}/.build/release/SPMDemoApp",
+      "preLaunchTask": "swift: Build Release SPMDemoApp"
+    }
+  ]
+}
