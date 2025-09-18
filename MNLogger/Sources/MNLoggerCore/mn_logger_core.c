@@ -3,15 +3,17 @@
 #include <string.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <sys/time.h>
 
-// 日志缓冲项结构
+// 日志缓冲项结构 - 添加毫秒字段
 typedef struct {
     MNLogLevel level;
     char* message;
     char* file;
     char* function;
     int line;
-    time_t timestamp;
+    time_t timestamp;      // 秒级时间戳
+    int milliseconds;      // 毫秒部分 (0-999)
 } LogEntry;
 
 // 全局日志系统状态
@@ -49,10 +51,16 @@ static void* writer_thread_func(void* arg) {
             
             // 检查日志级别
             if (entry->level >= g_log_state.min_level) {
-                // 格式化时间
-                char time_str[32];
+                // 格式化时间 - 使用存储的精确毫秒值
+                char time_str[64];
+                char time_with_ms[64];
                 struct tm* timeinfo = localtime(&entry->timestamp);
+                
+                // 先格式化日期和时间到秒级
                 strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M:%S", timeinfo);
+                
+                // 然后添加存储的毫秒值
+                sprintf(time_with_ms, "%s.%03d", time_str, entry->milliseconds);
                 
                 // 获取日志级别字符串
                 const char* level_str = "UNKNOWN";
@@ -65,13 +73,26 @@ static void* writer_thread_func(void* arg) {
                         break;
                     case MN_LOG_LEVEL_ERROR: level_str = "ERROR";
                         break;
-                    case MN_LOG_LEVEL_FATAL: level_str = "FATAL";  // 将 CRITICAL 改为 FATAL
+                    case MN_LOG_LEVEL_FATAL: level_str = "FATAL";
                         break;
                 }
                 
-                // 写入日志到文件
-                fprintf(g_log_state.log_file, "[%s] [%s] %s (at %s:%s:%d)\n", 
-                        time_str, level_str, entry->message, entry->file, entry->function, entry->line);
+                // 获取线程ID
+                char thread_id_str[32];
+                pthread_t thread_id = pthread_self();
+                sprintf(thread_id_str, "%lu", (unsigned long)thread_id);
+                
+                // 从文件路径中提取简单文件名
+                const char* simple_file_name = strrchr(entry->file, '/');
+                if (simple_file_name) {
+                    simple_file_name += 1;  // 跳过 '/' 字符
+                } else {
+                    simple_file_name = entry->file;  // 如果没有路径分隔符，使用完整文件名
+                }
+                
+                // 写入优化后的日志格式: [日期 时间(精确毫秒)] [日志级别] [线程信息] [文件名:行号] - [日志内容]
+                fprintf(g_log_state.log_file, "[%s] [%s] [Thread:%s] [%s:%d] - %s\n", 
+                        time_with_ms, level_str, thread_id_str, simple_file_name, entry->line, entry->message);
             }
             
             // 释放内存
@@ -148,14 +169,19 @@ void mn_logger_write(MNLogLevel level, const char* message, const char* file, co
         }
     }
     
-    // 创建新的日志条目
+    // 创建新的日志条目 - 同时记录毫秒
     LogEntry* entry = &g_log_state.buffer[g_log_state.buffer_count];
     entry->level = level;
     entry->message = strdup(message);
     entry->file = file ? strdup(file) : strdup("unknown");
     entry->function = function ? strdup(function) : strdup("unknown");
     entry->line = line;
-    entry->timestamp = time(NULL);
+    
+    // 获取精确的时间戳（秒+毫秒）
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    entry->timestamp = tv.tv_sec;
+    entry->milliseconds = (int)(tv.tv_usec / 1000);
     
     g_log_state.buffer_count++;
     

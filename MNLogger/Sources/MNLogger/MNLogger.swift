@@ -22,6 +22,11 @@ public class MNLogger: @unchecked Sendable {
     // 日志文件目录
     private let logDirectory: URL
     
+    /// 获取日志文件目录的只读访问
+    public var logDirectoryURL: URL {
+        return logDirectory
+    }
+    
     /// 初始化MNLogger
     private init() {
         // 1. 先初始化所有存储属性

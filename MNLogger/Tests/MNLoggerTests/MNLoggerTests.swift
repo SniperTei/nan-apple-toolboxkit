@@ -121,5 +121,17 @@ final class MNLoggerTests: XCTestCase {
         XCTAssertTrue(logContent.contains(uniqueMessage), "日志文件应该包含测试消息")
     }
     
-    // 移除测试单例和静态方法的一致性测试，因为flush方法已经私有化
+    // 测试写入超长日志
+    func testWriteLongMessage() {
+        let longMessage = String(repeating: "a", count: 1000000) // 1MB的字符串
+        MNLogger.info(longMessage)
+        // 等待一段时间让日志系统有机会写入文件
+        Thread.sleep(forTimeInterval: 0.5)
+        let logFilePath = getCurrentLogFilePath()
+        guard let logContent = try? String(contentsOfFile: logFilePath, encoding: .utf8) else {
+            XCTFail("无法读取日志文件内容")
+            return
+        }
+        XCTAssertTrue(logContent.contains(longMessage), "日志文件应该包含超长测试消息")
+    }
 }
