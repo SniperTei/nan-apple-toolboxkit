@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		7D247D012E7C333B00DF9254 /* MNLogger in Frameworks */ = {isa = PBXBuildFile; productRef = 7D247D002E7C333B00DF9254 /* MNLogger */; };
+		7D247D042E7C64AB00DF9254 /* MNLogger in Frameworks */ = {isa = PBXBuildFile; productRef = 7D247D032E7C64AB00DF9254 /* MNLogger */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -70,6 +71,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7D247D012E7C333B00DF9254 /* MNLogger in Frameworks */,
+				7D247D042E7C64AB00DF9254 /* MNLogger in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -131,6 +133,7 @@
 			name = MNLoggerApp;
 			packageProductDependencies = (
 				7D247D002E7C333B00DF9254 /* MNLogger */,
+				7D247D032E7C64AB00DF9254 /* MNLogger */,
 			);
 			productName = MNLoggerApp;
 			productReference = 7D247CCA2E7C313500DF9254 /* MNLoggerApp.app */;
@@ -216,7 +219,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				7D247CFE2E7C317600DF9254 /* XCRemoteSwiftPackageReference "swift-algorithms" */,
-				7D247CFF2E7C333B00DF9254 /* XCLocalSwiftPackageReference "../MNLogger" */,
+				7D247D022E7C64AB00DF9254 /* XCLocalSwiftPackageReference "../MNLogger" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 7D247CCB2E7C313500DF9254 /* Products */;
@@ -575,7 +578,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		7D247CFF2E7C333B00DF9254 /* XCLocalSwiftPackageReference "../MNLogger" */ = {
+		7D247D022E7C64AB00DF9254 /* XCLocalSwiftPackageReference "../MNLogger" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../MNLogger;
 		};
@@ -594,6 +597,10 @@
 
 /* Begin XCSwiftPackageProductDependency section */
 		7D247D002E7C333B00DF9254 /* MNLogger */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MNLogger;
+		};
+		7D247D032E7C64AB00DF9254 /* MNLogger */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = MNLogger;
 		};

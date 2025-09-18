@@ -12,6 +12,13 @@ public enum LogLevel: Sendable {
     case fatal
 }
 
+/// 日志输出目标枚举
+public enum LogOutput: Sendable {
+    case console  // 仅输出到控制台
+    case file     // 仅输出到文件
+    case both     // 同时输出到控制台和文件
+}
+
 /// MNLogger主类 - 高性能、线程安全的日志组件
 public class MNLogger: @unchecked Sendable {
     /// 单例实例
@@ -21,6 +28,8 @@ public class MNLogger: @unchecked Sendable {
     private var currentLogDate: String
     // 日志文件目录
     private let logDirectory: URL
+    // 当前日志输出目标
+    private var logOutput: LogOutput = .file // 默认只输出到文件
     
     /// 获取日志文件目录的只读访问
     public var logDirectoryURL: URL {
@@ -109,8 +118,20 @@ public class MNLogger: @unchecked Sendable {
     ///   - line: 行号，自动填充
     public func debug(_ message: String, file: String = #file, function: String = #function, line: Int = #line) {
         checkDateChange()
-        mn_logger_write(MN_LOG_LEVEL_DEBUG, message, file, function, Int32(line))
+        
+        // 根据输出目标决定输出方式
+        switch logOutput {
+        case .console:
+            printToConsole(level: .debug, message: message, file: file, function: function, line: line)
+        case .file:
+            mn_logger_write(MN_LOG_LEVEL_DEBUG, message, file, function, Int32(line))
+        case .both:
+            printToConsole(level: .debug, message: message, file: file, function: function, line: line)
+            mn_logger_write(MN_LOG_LEVEL_DEBUG, message, file, function, Int32(line))
+        }
     }
+    
+    // 其他日志方法(info, warning, error, fatal)也需要类似修改
     
     /// 记录信息日志
     /// - Parameters:
@@ -120,7 +141,17 @@ public class MNLogger: @unchecked Sendable {
     ///   - line: 行号，自动填充
     public func info(_ message: String, file: String = #file, function: String = #function, line: Int = #line) {
         checkDateChange()
-        mn_logger_write(MN_LOG_LEVEL_INFO, message, file, function, Int32(line))
+        
+        // 根据输出目标决定输出方式
+        switch logOutput {
+        case .console:
+            printToConsole(level: .info, message: message, file: file, function: function, line: line)
+        case .file:
+            mn_logger_write(MN_LOG_LEVEL_INFO, message, file, function, Int32(line))
+        case .both:
+            printToConsole(level: .info, message: message, file: file, function: function, line: line)
+            mn_logger_write(MN_LOG_LEVEL_INFO, message, file, function, Int32(line))
+        }
     }
     
     /// 记录警告日志
@@ -131,7 +162,17 @@ public class MNLogger: @unchecked Sendable {
     ///   - line: 行号，自动填充
     public func warning(_ message: String, file: String = #file, function: String = #function, line: Int = #line) {
         checkDateChange()
-        mn_logger_write(MN_LOG_LEVEL_WARNING, message, file, function, Int32(line))
+        
+        // 根据输出目标决定输出方式
+        switch logOutput {
+        case .console:
+            printToConsole(level: .warning, message: message, file: file, function: function, line: line)
+        case .file:
+            mn_logger_write(MN_LOG_LEVEL_WARNING, message, file, function, Int32(line))
+        case .both:
+            printToConsole(level: .warning, message: message, file: file, function: function, line: line)
+            mn_logger_write(MN_LOG_LEVEL_WARNING, message, file, function, Int32(line))
+        }
     }
     
     /// 记录错误日志
@@ -142,7 +183,17 @@ public class MNLogger: @unchecked Sendable {
     ///   - line: 行号，自动填充
     public func error(_ message: String, file: String = #file, function: String = #function, line: Int = #line) {
         checkDateChange()
-        mn_logger_write(MN_LOG_LEVEL_ERROR, message, file, function, Int32(line))
+        
+        // 根据输出目标决定输出方式
+        switch logOutput {
+        case .console:
+            printToConsole(level: .error, message: message, file: file, function: function, line: line)
+        case .file:
+            mn_logger_write(MN_LOG_LEVEL_ERROR, message, file, function, Int32(line))
+        case .both:
+            printToConsole(level: .error, message: message, file: file, function: function, line: line)
+            mn_logger_write(MN_LOG_LEVEL_ERROR, message, file, function, Int32(line))
+        }
     }
     
     /// 记录严重错误日志
@@ -153,7 +204,18 @@ public class MNLogger: @unchecked Sendable {
     ///   - line: 行号，自动填充
     public func fatal(_ message: String, file: String = #file, function: String = #function, line: Int = #line) {
         checkDateChange()
-        mn_logger_write(MN_LOG_LEVEL_FATAL, message, file, function, Int32(line))
+        
+        // 根据输出目标决定输出方式
+        switch logOutput {
+        case .console:
+            printToConsole(level: .fatal, message: message, file: file, function: function, line: line)
+        case .file:
+            mn_logger_write(MN_LOG_LEVEL_FATAL, message, file, function, Int32(line))
+        case .both:
+            printToConsole(level: .fatal, message: message, file: file, function: function, line: line)
+            mn_logger_write(MN_LOG_LEVEL_FATAL, message, file, function, Int32(line))
+        }
+        
         // 对于严重错误，立即刷新日志以确保记录不丢失
         flush()
     }
@@ -168,6 +230,13 @@ public class MNLogger: @unchecked Sendable {
     /// 静态方法 - 记录调试日志
     public static func debug(_ message: String, file: String = #file, function: String = #function, line: Int = #line) {
         shared.debug(message, file: file, function: function, line: line)
+    }
+    
+    // 其他静态日志方法也需要更新
+    
+    /// 静态方法 - 设置日志输出目标
+    public static func setLogOutput(_ output: LogOutput) {
+        shared.setLogOutput(output)
     }
     
     /// 静态方法 - 记录信息日志
@@ -193,5 +262,38 @@ public class MNLogger: @unchecked Sendable {
     /// 静态方法 - 设置最小日志级别
     public static func setMinimumLogLevel(_ level: LogLevel) {
         shared.setMinimumLogLevel(level)
+    }
+    
+    /// 设置日志输出目标
+    /// - Parameter output: 日志输出目标
+    public func setLogOutput(_ output: LogOutput) {
+        self.logOutput = output
+    }
+    
+    // 控制台输出辅助方法
+    private func printToConsole(level: LogLevel, message: String, file: String, function: String, line: Int) {
+        // 获取当前时间
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
+        let currentTime = dateFormatter.string(from: Date())
+        
+        // 获取线程信息
+        let threadName = Thread.current.name ?? "Main"
+        
+        // 获取日志级别字符串
+        let levelStr: String
+        switch level {
+        case .debug: levelStr = "DEBUG"
+        case .info: levelStr = "INFO"
+        case .warning: levelStr = "WARNING"
+        case .error: levelStr = "ERROR"
+        case .fatal: levelStr = "FATAL"
+        }
+        
+        // 从文件路径中提取简单文件名
+        let simpleFileName = (file as NSString).lastPathComponent
+        
+        // 打印到控制台，格式与文件日志保持一致
+        print("[\(currentTime)] [\(levelStr)] [Thread:\(threadName)] [\(simpleFileName):\(line)] - \(message)")
     }
 }
