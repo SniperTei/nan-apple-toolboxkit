@@ -25,7 +25,7 @@ public class MNLogger: @unchecked Sendable {
     /// 初始化MNLogger
     private init() {
         // 1. 先初始化所有存储属性
-        self.logDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        self.logDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first! as URL
         
         // 2. 使用静态方法获取当前日期（避免在所有属性初始化前使用self）
         let currentDate = Self.getCurrentDateStringStatic()
@@ -38,7 +38,11 @@ public class MNLogger: @unchecked Sendable {
         mn_logger_init(logFilePath, 10000)
         
         // 注册应用退出时的清理函数
-        atexit { mn_logger_close() }
+        atexit { 
+            // 确保在应用退出时先刷新日志，再关闭
+            mn_logger_flush()
+            mn_logger_close()
+        }
     }
     
     // 静态方法：获取当前日期的字符串表示（格式：YYYY-MM-DD）
@@ -145,10 +149,12 @@ public class MNLogger: @unchecked Sendable {
     public func fatal(_ message: String, file: String = #file, function: String = #function, line: Int = #line) {
         checkDateChange()
         mn_logger_write(MN_LOG_LEVEL_FATAL, message, file, function, Int32(line))
+        // 对于严重错误，立即刷新日志以确保记录不丢失
+        flush()
     }
     
-    /// 立即刷新所有待写入的日志到文件
-    public func flush() {
+    /// 立即刷新所有待写入的日志到文件（内部使用）
+    private func flush() {
         mn_logger_flush()
     }
     
@@ -182,10 +188,5 @@ public class MNLogger: @unchecked Sendable {
     /// 静态方法 - 设置最小日志级别
     public static func setMinimumLogLevel(_ level: LogLevel) {
         shared.setMinimumLogLevel(level)
-    }
-    
-    /// 静态方法 - 立即刷新所有待写入的日志到文件
-    public static func flush() {
-        shared.flush()
     }
 }

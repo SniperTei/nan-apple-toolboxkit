@@ -33,8 +33,7 @@ final class MNLoggerTests: XCTestCase {
         MNLogger.error("这是一条错误日志")
         MNLogger.fatal("这是一条严重错误日志")
         
-        // 立即刷新日志
-        MNLogger.flush()
+        // 移除了flush调用，因为flush已改为内部使用
         
         // 验证日志文件存在
         let logFilePath = getCurrentLogFilePath()
@@ -53,8 +52,7 @@ final class MNLoggerTests: XCTestCase {
         MNLogger.error("这条错误日志会被记录")
         MNLogger.fatal("这条严重错误日志会被记录")
         
-        // 立即刷新日志
-        MNLogger.flush()
+        // 移除了flush调用
         
         // 验证日志文件存在
         let logFilePath = getCurrentLogFilePath()
@@ -73,8 +71,9 @@ final class MNLoggerTests: XCTestCase {
             MNLogger.debug("这是第\(i)条测试日志，用于测试性能")
         }
         
-        // 等待所有日志写入完成
-        MNLogger.flush()
+        // 因为flush已改为内部使用，我们不再需要显式调用它
+        // 等待一段时间让日志系统有机会处理完所有日志
+        Thread.sleep(forTimeInterval: 0.5)
         
         let endTime = Date()
         let duration = endTime.timeIntervalSince(startTime)
@@ -87,32 +86,40 @@ final class MNLoggerTests: XCTestCase {
         XCTAssertLessThan(duration, 2.0, "记录\(count)条日志耗时不应超过2秒")
     }
     
-    // 新增：测试单例和静态方法的一致性
-    func testSingletonAndStaticConsistency() {
-        // 设置单例的日志级别
-        MNLogger.shared.setMinimumLogLevel(.error)
-        
-        // 使用静态方法记录日志
-        MNLogger.debug("这条调试日志不应该被记录")
-        MNLogger.error("这条错误日志应该被记录")
-        
-        MNLogger.flush()
-        
-        // 验证日志文件存在
-        let logFilePath = getCurrentLogFilePath()
-        XCTAssertTrue(FileManager.default.fileExists(atPath: logFilePath), "日志文件应该存在")
-    }
-    
     // 新增：测试日期命名日志文件功能
     func testDateNamedLogFile() {
         // 获取当前日志文件路径
         let originalLogFilePath = getCurrentLogFilePath()
         
-        // 写入一条测试日志并刷新
+        // 写入一条测试日志
         MNLogger.info("测试日期命名的日志文件")
-        MNLogger.flush()
+        
+        // 移除了flush调用
         
         // 验证日志文件存在
         XCTAssertTrue(FileManager.default.fileExists(atPath: originalLogFilePath), "日期命名的日志文件应该存在")
     }
+    
+    // 新增：测试日志文件内容（可选，需要读取文件内容）
+    func testLogContent() {
+        let uniqueMessage = "测试消息-\(UUID().uuidString)"
+        
+        // 记录唯一标识的日志消息
+        MNLogger.info(uniqueMessage)
+        
+        // 等待一段时间让日志系统有机会写入文件
+        Thread.sleep(forTimeInterval: 0.5)
+        
+        // 读取日志文件内容
+        let logFilePath = getCurrentLogFilePath()
+        guard let logContent = try? String(contentsOfFile: logFilePath, encoding: .utf8) else {
+            XCTFail("无法读取日志文件内容")
+            return
+        }
+        
+        // 验证唯一消息是否存在于日志文件中
+        XCTAssertTrue(logContent.contains(uniqueMessage), "日志文件应该包含测试消息")
+    }
+    
+    // 移除测试单例和静态方法的一致性测试，因为flush方法已经私有化
 }
