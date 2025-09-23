@@ -1,7 +1,7 @@
 import Foundation
 import CocoaLumberjackSwift
 
-// 将类声明为 public
+// 确保 MNLoggerCore 类标记为 public
 public class MNLoggerCore: @unchecked Sendable {
     public static let shared = MNLoggerCore()
     
@@ -9,7 +9,7 @@ public class MNLoggerCore: @unchecked Sendable {
         // 初始化日志记录器
         setupLoggers()
     }
-    
+
     // 移除错误的通知监听代码并添加正确的实现
     
     // 修改 rollLogFileNow 方法，添加 @objc 标记使其可被用作选择器

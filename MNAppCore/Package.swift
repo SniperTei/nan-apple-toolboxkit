@@ -15,9 +15,9 @@ let package = Package(
         // 添加 CocoaLumberjack 依赖（用于日志记录）
         .package(url: "https://github.com/CocoaLumberjack/CocoaLumberjack.git", from: "3.8.0"),
         // 添加 Alamofire 依赖（用于网络请求）
-        // .package(url: "https://github.com/Alamofire/Alamofire.git", from: "5.9.0"),
+        .package(url: "https://github.com/Alamofire/Alamofire.git", from: "5.9.0"),
         // 添加 Moya 依赖（网络请求抽象层，基于 Alamofire）
-        // .package(url: "https://github.com/Moya/Moya.git", from: "15.0.0")
+        .package(url: "https://github.com/Moya/Moya.git", from: "15.0.0")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -29,25 +29,26 @@ let package = Package(
                 // .product(name: "CocoaLumberjackSwift", package: "CocoaLumberjack"),
                 // .product(name: "Alamofire", package: "Alamofire"),
                 // .product(name: "Moya", package: "Moya"),
-                "MNLoggerModule"
+                "MNLoggerKit",
+                "MNNetKit"
             ]
         ),
         .target(
-            name: "MNLoggerModule",
+            name: "MNLoggerKit",
             dependencies: [
                 // 日志模块依赖 CocoaLumberjack
                 .product(name: "CocoaLumberjackSwift", package: "CocoaLumberjack")
             ],
-            path: "Sources/MNLoggerModule",
+            path: "Sources/MNLoggerKit",
         ),
         .target(
-            name: "MNNetworkModule",
+            name: "MNNetKit",
             dependencies: [
                 // 网络模块依赖 Alamofire 和 Moya
-                // .product(name: "Alamofire", package: "Alamofire"),
-                // .product(name: "Moya", package: "Moya")
+                .product(name: "Alamofire", package: "Alamofire"),
+                .product(name: "Moya", package: "Moya")
             ],
-            // path: "Sources/MNNetworkModule"
+            path: "Sources/MNNetKit",
         ),
         .testTarget(
             name: "MNAppCoreTests",

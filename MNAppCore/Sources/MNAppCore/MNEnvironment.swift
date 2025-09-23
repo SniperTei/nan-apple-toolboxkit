@@ -122,31 +122,22 @@ public struct MNEnvironment {
             return nil
         }
         
-        // 根据配置或构建标志确定环境类型
-        let isProduction = ProcessInfo.processInfo.environment["PRODUCTION"] == "true"
-        let isTesting = ProcessInfo.processInfo.environment["TESTING"] == "true"
+        // API 基础 URL（从 Info.plist 或环境变量获取）
+        let apiBaseURL = infoDict["API_BASE_URL"] as? String ?? "https://api.example.com"
         
-        let type: MNEnvironmentType
-        let apiBaseURL: String
+        // API 密钥（可选）
+        let apiKey = infoDict["API_KEY"] as? String
         
-        if isProduction {
-            type = .prod
-            apiBaseURL = "https://api.example.com"
-        } else if isTesting {
-            type = .test
-            apiBaseURL = "https://test-api.example.com"
-        } else {
-            type = .dev
-            apiBaseURL = "https://dev-api.example.com"
-        }
+        // 添加 type 参数到 fromInfoPlist() 方法中的 MNEnvironment 初始化
         
         return MNEnvironment(
-            type: type,
+            type: .dev, // 或者根据需要选择默认类型
             appId: appId,
             appName: appName,
             appVersion: appVersion,
             buildNumber: buildNumber,
-            apiBaseURL: apiBaseURL
+            apiBaseURL: apiBaseURL,
+            apiKey: apiKey
         )
     }
 }
