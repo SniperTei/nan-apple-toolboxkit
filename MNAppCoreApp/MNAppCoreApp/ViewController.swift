@@ -31,13 +31,13 @@ class ViewController: UIViewController {
                 .sink(receiveCompletion: { completion in
                     switch completion {
                     case .failure(let error):
-                        print("登录失败: \(error.localizedDescription)")
+                        print("11登录失败: \(error.localizedDescription)")
                     case .finished:
-                        print("登录请求完成")
+                        print("11登录请求完成")
                     }
                 }, receiveValue: { userInfo in
-                    print("登录成功，用户ID: \(userInfo.id)")
-                    print("获取到Token: \(userInfo.token)")
+                    print("11登录成功，用户ID: \(userInfo.id)")
+                    print("11获取到Token: \(userInfo.token)")
                     // 保存用户信息或Token
                 })
     }

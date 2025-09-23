@@ -3,6 +3,7 @@ import Combine
 import Moya
 
 /// Mock模式枚举
+@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public enum MockMode {
     case disabled // 禁用Mock
     case global   // 全局启用Mock
@@ -50,7 +51,7 @@ public final class MNNetClient: @unchecked Sendable {
         responseType: T.Type
     ) -> AnyPublisher<T, MNError> {
         // 转换为内部Target
-        let target = MNInternalTarget(request: request)
+        let target: MNInternalTarget = MNInternalTarget(request: request)
         
         // 发起请求并处理结果
         return core.request(target, modelType: MNResponse<T>.self)
