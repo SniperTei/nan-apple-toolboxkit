@@ -6,7 +6,9 @@
 //
 
 import UIKit
-import MNLoggerModule
+import MNLoggerKit
+import MNNetKit
+import MNAppCore
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -29,8 +31,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //        DDLogWarn("Warn")
 //        DDLogError("Error")
         
+        // 日志
         let logManager = MNLoggerCore.shared
         let path = logManager.getLogFileDirectory()
+
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+        let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
+
+        // 网络
+        let environment = MNEnvironment(
+            type: .dev,
+            appId: "MNAppCoreApp",
+            appName: "MNAppCoreAppName",
+            appVersion: version,
+            buildNumber: buildNumber,
+            apiBaseURL: "http://localhost:8000",
+            apiKey: nil,
+            debugMode: true
+        )
+        configureNetwork(with: environment)
         
         MNInfo("info", "=================Start MNAppCoreApp===============")
         MNDebug("debug", "hello debug")
@@ -38,6 +57,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         MNWarn("warn", "hello warn")
         
         return true
+    }
+
+    // 实现网络配置方法
+    private func configureNetwork(with configuration: MNEnvironment) {
+        guard let baseURL = URL(string: configuration.apiBaseURL) else {
+            MNDebug("MNAppCore", "无效的API基础URL: \(configuration.apiBaseURL)")
+            return
+        }
+        
+        // 配置网络核心模块
+        MNNetClient.shared.configure(baseURL: baseURL, timeoutInterval: 30.0)
+        
+        // 根据环境设置Mock模式
+        if configuration.debugMode {
+            MNNetClient.shared.setMockMode(.disabled) // 开发环境可以根据需要设置为.global或.custom
+        }
+        
+        // 如果环境配置了API Key，可以设置全局认证插件或其他配置
+        if let apiKey = configuration.apiKey {
+            // 这里可以存储API Key供后续使用
+            UserDefaults.standard.set(apiKey, forKey: "AppApiKey")
+        }
+        
+        MNDebug("MNAppCore", "网络系统已配置，基础URL: \(configuration.apiBaseURL)")
     }
 
     // MARK: UISceneSession Lifecycle

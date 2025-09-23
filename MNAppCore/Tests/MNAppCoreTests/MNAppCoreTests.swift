@@ -1,6 +1,6 @@
 import Testing
 @testable import MNAppCore
-import MNLoggerModule
+import MNLoggerKit
 import Foundation
 
 @Test func testMNAppCoreInitialization() async throws {

@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		7D247D692E7D528A00DF9254 /* MNAppCore in Frameworks */ = {isa = PBXBuildFile; productRef = 7D247D682E7D528A00DF9254 /* MNAppCore */; };
 		7D247D6B2E7E889200DF9254 /* MNAppCore in Frameworks */ = {isa = PBXBuildFile; productRef = 7D247D6A2E7E889200DF9254 /* MNAppCore */; };
+		7D247D6D2E824D1C00DF9254 /* MNAppCore in Frameworks */ = {isa = PBXBuildFile; productRef = 7D247D6C2E824D1C00DF9254 /* MNAppCore */; };
+		7D247D702E82523C00DF9254 /* MNAppCore in Frameworks */ = {isa = PBXBuildFile; productRef = 7D247D6F2E82523C00DF9254 /* MNAppCore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -71,6 +73,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				7D247D6B2E7E889200DF9254 /* MNAppCore in Frameworks */,
+				7D247D6D2E824D1C00DF9254 /* MNAppCore in Frameworks */,
+				7D247D702E82523C00DF9254 /* MNAppCore in Frameworks */,
 				7D247D692E7D528A00DF9254 /* MNAppCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -134,6 +138,8 @@
 			packageProductDependencies = (
 				7D247D682E7D528A00DF9254 /* MNAppCore */,
 				7D247D6A2E7E889200DF9254 /* MNAppCore */,
+				7D247D6C2E824D1C00DF9254 /* MNAppCore */,
+				7D247D6F2E82523C00DF9254 /* MNAppCore */,
 			);
 			productName = MNAppCoreApp;
 			productReference = 7D247D332E7D50EE00DF9254 /* MNAppCoreApp.app */;
@@ -218,7 +224,7 @@
 			mainGroup = 7D247D2A2E7D50EE00DF9254;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				7D247D672E7D528A00DF9254 /* XCLocalSwiftPackageReference "../MNAppCore" */,
+				7D247D6E2E82523C00DF9254 /* XCLocalSwiftPackageReference "../MNAppCore" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 7D247D342E7D50EE00DF9254 /* Products */;
@@ -577,7 +583,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		7D247D672E7D528A00DF9254 /* XCLocalSwiftPackageReference "../MNAppCore" */ = {
+		7D247D6E2E82523C00DF9254 /* XCLocalSwiftPackageReference "../MNAppCore" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../MNAppCore;
 		};
@@ -589,6 +595,14 @@
 			productName = MNAppCore;
 		};
 		7D247D6A2E7E889200DF9254 /* MNAppCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MNAppCore;
+		};
+		7D247D6C2E824D1C00DF9254 /* MNAppCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MNAppCore;
+		};
+		7D247D6F2E82523C00DF9254 /* MNAppCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = MNAppCore;
 		};
