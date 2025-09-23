@@ -8,8 +8,12 @@
 import UIKit
 import MNNetKit
 import MNLoggerKit
+import Combine
 
 class ViewController: UIViewController {
+    
+    // 将cancellables改为类的属性
+    private var cancellables = Set<AnyCancellable>()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,20 +31,19 @@ class ViewController: UIViewController {
     @objc func buttonClick() {
         // 调接口
         let loginRequest = LoginRequest(email: "admin@example.com", password: "admin123")
-        _ = MNNetClient.shared.send(loginRequest, responseType: LoginResponse.self)
-                .sink(receiveCompletion: { completion in
-                    switch completion {
-                    case .failure(let error):
-                        print("11登录失败: \(error.localizedDescription)")
-                    case .finished:
-                        print("11登录请求完成")
-                    }
-                }, receiveValue: { userInfo in
-                    print("11登录成功，用户ID: \(userInfo.id)")
-                    print("11获取到Token: \(userInfo.token)")
-                    // 保存用户信息或Token
-                })
+        print("22开始调接口")
+        loginRequest.send(LoginResponse.self).sink(receiveCompletion: { completion in
+            switch completion {
+            case .failure(let error):
+                print("11登录失败: \(error.localizedDescription)")
+            case .finished:
+                print("11登录请求完成")
+            }
+        }, receiveValue: { userInfo in
+            print("11登录成功")
+            print("11获取到Token: \(userInfo.access_token)")
+            // 保存用户信息或Token
+        }).store(in: &cancellables)
     }
-
 }
 

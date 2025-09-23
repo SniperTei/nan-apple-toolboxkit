@@ -71,7 +71,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // 根据环境设置Mock模式
         if configuration.debugMode {
-            MNNetClient.shared.setMockMode(.disabled) // 开发环境可以根据需要设置为.global或.custom
+            MNNetClient.shared.setMockMode(.disabled) // 开发环境可以设置为.global或.custom
         }
         
         // 如果环境配置了API Key，可以设置全局认证插件或其他配置

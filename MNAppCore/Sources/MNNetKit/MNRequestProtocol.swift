@@ -40,6 +40,44 @@ public extension MNRequestProtocol {
     ) -> AnyPublisher<T, MNError> {
         return MNNetClient.shared.send(self, responseType: responseType)
     }
+    
+    /// 简化版发送请求（通过返回值类型推断）
+    /// - Parameters:
+    ///   - decoder: 用于解码JSON的解码器
+    /// - Returns: 包含结果的Combine Publisher
+    func send<T: Decodable>(
+        decoder: JSONDecoder = JSONDecoder()
+    ) -> AnyPublisher<T, MNError> {
+        return MNNetClient.shared.send(self, responseType: T.self)
+    }
+    
+    /// 同步发送请求（不推荐在主线程使用）
+    /// - Parameters:
+    ///   - responseType: 期望返回的数据模型类型
+    ///   - decoder: 用于解码JSON的解码器
+    /// - Returns: 请求结果
+    func sendSync<T: Decodable>(
+        _ responseType: T.Type,
+        decoder: JSONDecoder = JSONDecoder()
+    ) -> Result<T, MNError> {
+        let semaphore = DispatchSemaphore(value: 0)
+        var result: Result<T, MNError> = .failure(.networkError("请求未完成"))
+        var syncCancellables = Set<AnyCancellable>()
+        
+        self.send(responseType)
+            .sink(receiveCompletion: {
+                if case .failure(let error) = $0 {
+                    result = .failure(error)
+                }
+                semaphore.signal()
+            }, receiveValue: {
+                result = .success($0)
+            })
+            .store(in: &syncCancellables)
+        
+        semaphore.wait()
+        return result
+    }
 }
 
 /// HTTP方法枚举（隐藏Moya细节）

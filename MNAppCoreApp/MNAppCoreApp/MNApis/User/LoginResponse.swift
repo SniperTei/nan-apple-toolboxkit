@@ -9,9 +9,10 @@ import Foundation
 
 
 struct LoginResponse: Decodable {
-    let id: String
-    let username: String
-    let nickname: String
-    let avatar: String?
-    let token: String
+//    let id: String
+//    let username: String
+//    let nickname: String
+//    let avatar: String?
+    let access_token: String
+    let token_type: String
 }
