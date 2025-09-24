@@ -1,8 +1,7 @@
+// 删除Combine导入
 import Foundation
 import Moya
-import Combine
 
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 /// 抽象请求协议，调用方通过实现此协议定义接口
 public protocol MNRequestProtocol {
     /// 接口路径（如 "/user/login"）
@@ -20,60 +19,34 @@ public protocol MNRequestProtocol {
 }
 
 /// 默认实现，简化调用方代码
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public extension MNRequestProtocol {
     var baseURL: URL? { nil }
     var timeoutInterval: TimeInterval? { nil }
     var mockData: Data? { nil }
 }
 
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public extension MNRequestProtocol {
     /// 直接在请求对象上发送请求
-    /// - Parameters:
-    ///   - responseType: 期望返回的数据模型类型
-    ///   - decoder: 用于解码JSON的解码器
-    /// - Returns: 包含结果的Combine Publisher
     func send<T: Decodable>(
         _ responseType: T.Type,
-        decoder: JSONDecoder = JSONDecoder()
-    ) -> AnyPublisher<T, MNError> {
-        return MNNetClient.shared.send(self, responseType: responseType)
-    }
-    
-    /// 简化版发送请求（通过返回值类型推断）
-    /// - Parameters:
-    ///   - decoder: 用于解码JSON的解码器
-    /// - Returns: 包含结果的Combine Publisher
-    func send<T: Decodable>(
-        decoder: JSONDecoder = JSONDecoder()
-    ) -> AnyPublisher<T, MNError> {
-        return MNNetClient.shared.send(self, responseType: T.self)
+        decoder: JSONDecoder = JSONDecoder(),
+        completion: @escaping (Result<T, MNError>) -> Void
+    ) {
+        MNNetClient.shared.send(self, responseType: responseType, completion: completion)
     }
     
     /// 同步发送请求（不推荐在主线程使用）
-    /// - Parameters:
-    ///   - responseType: 期望返回的数据模型类型
-    ///   - decoder: 用于解码JSON的解码器
-    /// - Returns: 请求结果
     func sendSync<T: Decodable>(
         _ responseType: T.Type,
         decoder: JSONDecoder = JSONDecoder()
     ) -> Result<T, MNError> {
         let semaphore = DispatchSemaphore(value: 0)
         var result: Result<T, MNError> = .failure(.networkError("请求未完成"))
-        var syncCancellables = Set<AnyCancellable>()
         
-        self.send(responseType)
-            .sink(receiveCompletion: {
-                if case .failure(let error) = $0 {
-                    result = .failure(error)
-                }
-                semaphore.signal()
-            }, receiveValue: {
-                result = .success($0)
-            })
-            .store(in: &syncCancellables)
+        self.send(responseType) { responseResult in
+            result = responseResult
+            semaphore.signal()
+        }
         
         semaphore.wait()
         return result

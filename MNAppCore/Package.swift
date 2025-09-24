@@ -5,6 +5,9 @@ import PackageDescription
 
 let package = Package(
     name: "MNAppCore",
+    platforms: [
+        .iOS(.v13)
+    ],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
@@ -25,10 +28,6 @@ let package = Package(
         .target(
             name: "MNAppCore",
             dependencies: [
-                // // 将依赖添加到核心模块
-                // .product(name: "CocoaLumberjackSwift", package: "CocoaLumberjack"),
-                // .product(name: "Alamofire", package: "Alamofire"),
-                // .product(name: "Moya", package: "Moya"),
                 "MNLoggerKit",
                 "MNNetKit"
             ]
@@ -48,7 +47,8 @@ let package = Package(
                 .product(name: "Alamofire", package: "Alamofire"),
                 .product(name: "Moya", package: "Moya")
             ],
-            path: "Sources/MNNetKit",
+            path: "Sources/MNNetKit"
+            // 移除这里的platforms参数，它只能在package级别定义
         ),
         .testTarget(
             name: "MNAppCoreTests",

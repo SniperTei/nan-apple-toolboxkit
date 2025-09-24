@@ -38,8 +38,8 @@ class MNAppCore: @unchecked Sendable {
             return
         }
         
-        // 添加版本检查
-        if #available(macOS 10.15, iOS 13.0, *) {
+        // 简化版本检查，只针对iOS平台
+        if #available(iOS 13.0, *) {
             let netClient = MNNetClient.shared
             // 配置网络核心模块
             netClient.configure(baseURL: baseURL, timeoutInterval: 30.0)
@@ -57,7 +57,7 @@ class MNAppCore: @unchecked Sendable {
             
             MNDebug("MNAppCore", "网络系统已配置，基础URL: \(configuration.apiBaseURL)")
         } else {
-            MNDebug("MNAppCore", "当前操作系统版本不支持MNNetClient，需要macOS 10.15+或iOS 13.0+")
+            MNDebug("MNAppCore", "当前操作系统版本不支持MNNetClient，需要iOS 13.0+")
         }
     }
 }

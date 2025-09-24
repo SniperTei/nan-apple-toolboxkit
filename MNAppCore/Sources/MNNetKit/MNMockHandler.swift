@@ -1,8 +1,7 @@
+// 删除Combine导入
 import Foundation
-import Combine
 
 /// Mock数据处理工具
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 final class MNMockHandler: @unchecked Sendable {
     static let shared = MNMockHandler()
     private init() {}
@@ -19,34 +18,43 @@ final class MNMockHandler: @unchecked Sendable {
         }
     }
     
-    /// 获取Mock数据的Publisher
-    func mockPublisher<T: Decodable>(
+    /// 获取Mock数据
+    func mockResponse<T: Decodable>(
         for request: MNRequestProtocol,
         modelType: T.Type,
-        globalProvider: ((MNRequestProtocol) -> Data?)?
-    ) -> AnyPublisher<T, Error> {
+        globalProvider: ((MNRequestProtocol) -> Data?)?,
+        completion: @escaping (Result<T, MNError>) -> Void
+    ) {
         // 1. 优先使用请求自身的mock数据
         if let data = request.mockData {
-            return decodeMockData(data, modelType: modelType)
+            decodeMockData(data, modelType: modelType, completion: completion)
+            return
         }
         
         // 2. 其次使用全局mock提供者
         if let data = globalProvider?(request) {
-            return decodeMockData(data, modelType: modelType)
+            decodeMockData(data, modelType: modelType, completion: completion)
+            return
         }
         
         // 3. 最后返回错误
-        return Fail(error: MNError.parseError("未配置Mock数据")).eraseToAnyPublisher()
+        completion(.failure(.parseError("未配置Mock数据")))
     }
     
     /// 解析Mock数据并添加延迟模拟网络请求
     private func decodeMockData<T: Decodable>(
         _ data: Data,
-        modelType: T.Type
-    ) -> AnyPublisher<T, Error> {
-        return Just(data)
-            .decode(type: modelType, decoder: JSONDecoder())
-            .delay(for: .milliseconds(300), scheduler: DispatchQueue.global())
-            .eraseToAnyPublisher()
+        modelType: T.Type,
+        completion: @escaping (Result<T, MNError>) -> Void
+    ) {
+        // 添加延迟模拟网络请求
+        DispatchQueue.global().asyncAfter(deadline: .now() + 0.3) {
+            do {
+                let model = try JSONDecoder().decode(modelType, from: data)
+                completion(.success(model))
+            } catch {
+                completion(.failure(.parseError("Mock数据解析失败")))
+            }
+        }
     }
 }

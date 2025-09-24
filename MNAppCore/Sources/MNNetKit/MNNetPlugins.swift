@@ -3,7 +3,6 @@ import Alamofire
 import Moya
 
 /// 日志插件
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 final class MNLogPlugin: PluginType {
     func willSend(_ request: RequestType, target: TargetType) {
         guard MNNetConfig.shared.enableLogging else { return }

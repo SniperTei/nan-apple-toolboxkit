@@ -1,9 +1,8 @@
+// 删除Combine导入
 import Foundation
-import Combine
 import Moya
 
 /// Mock模式枚举
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public enum MockMode {
     case disabled // 禁用Mock
     case global   // 全局启用Mock
@@ -11,7 +10,6 @@ public enum MockMode {
 }
 
 /// 网络库对外的主要接口，单例模式
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public final class MNNetClient: @unchecked Sendable {
     public static let shared = MNNetClient()
     private let core: MNNetCore
@@ -22,9 +20,6 @@ public final class MNNetClient: @unchecked Sendable {
     }
     
     /// 配置全局网络参数
-    /// - Parameters:
-    ///   - baseURL: 基础URL
-    ///   - timeoutInterval: 默认超时时间（秒）
     public func configure(baseURL: URL, timeoutInterval: TimeInterval = 30) {
         MNNetConfig.shared.baseURL = baseURL
         MNNetConfig.shared.timeoutInterval = timeoutInterval
@@ -42,37 +37,49 @@ public final class MNNetClient: @unchecked Sendable {
     }
     
     /// 发送请求
-    /// - Parameters:
-    ///   - request: 实现了MNRequestProtocol的请求对象
-    ///   - responseType: 期望返回的数据模型类型
-    /// - Returns: 包含结果的Combine Publisher
     public func send<T: Decodable, R: MNRequestProtocol>(
         _ request: R,
-        responseType: T.Type
-    ) -> AnyPublisher<T, MNError> {
+        responseType: T.Type,
+        completion: @escaping (Result<T, MNError>) -> Void
+    ) {
         // 转换为内部Target
         let target: MNInternalTarget = MNInternalTarget(request: request)
         
+        // 检查是否需要使用Mock数据
+        if MNMockHandler.shared.shouldUseMock(for: request, mode: core.mockMode) {
+            MNMockHandler.shared.mockResponse(
+                for: request,
+                modelType: responseType,
+                globalProvider: core.globalMockProvider,
+                completion: completion
+            )
+            return
+        }
+        
         // 发起请求并处理结果
-        return core.request(target, modelType: MNResponse<T>.self)
-            .mapError { error -> MNError in
+        core.request(target, modelType: MNResponse<T>.self) { result in
+            switch result {
+            case .success(let response):
+                completion(.success(response.data))
+            case .failure(let error):
                 // 转换底层错误为MNError
+                let mnError: MNError
                 if let moyaError = error as? MoyaError {
                     switch moyaError {
                     case .statusCode(let response):
-                        return .businessError(code: response.statusCode, message: "HTTP状态码错误")
+                        mnError = .businessError(code: response.statusCode, message: "HTTP状态码错误")
                     case .underlying(let error, _):
-                        return .networkError(error.localizedDescription)
+                        mnError = .networkError(error.localizedDescription)
                     default:
-                        return .networkError(moyaError.localizedDescription)
+                        mnError = .networkError(moyaError.localizedDescription)
                     }
+                } else if error is DecodingError {
+                    mnError = .parseError("数据解析失败")
+                } else {
+                    mnError = .networkError("未知错误")
                 }
-                if error is DecodingError {
-                    return .parseError("数据解析失败")
-                }
-                return .networkError("未知错误")
+                completion(.failure(mnError))
             }
-            .map { $0.data }
-            .eraseToAnyPublisher()
+        }
     }
 }

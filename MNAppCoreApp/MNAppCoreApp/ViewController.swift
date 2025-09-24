@@ -32,18 +32,16 @@ class ViewController: UIViewController {
         // 调接口
         let loginRequest = LoginRequest(email: "admin@example.com", password: "admin123")
         print("22开始调接口")
-        loginRequest.send(LoginResponse.self).sink(receiveCompletion: { completion in
-            switch completion {
+        loginRequest.send(LoginResponse.self) { result in
+            switch result {
+            case .success(let userInfo):
+                print("11登录成功")
+                print("11获取到Token: \(userInfo.access_token)")
             case .failure(let error):
                 print("11登录失败: \(error.localizedDescription)")
-            case .finished:
-                print("11登录请求完成")
             }
-        }, receiveValue: { userInfo in
-            print("11登录成功")
-            print("11获取到Token: \(userInfo.access_token)")
-            // 保存用户信息或Token
-        }).store(in: &cancellables)
+        }
     }
+
 }
 

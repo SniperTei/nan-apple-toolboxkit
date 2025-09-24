@@ -2,7 +2,6 @@ import Foundation
 import Moya
 
 /// 内部使用的Target，将MNRequestProtocol转换为Moya可识别的TargetType
-@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 struct MNInternalTarget: TargetType {
     let request: MNRequestProtocol
     
