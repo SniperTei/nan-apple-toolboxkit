@@ -29,27 +29,43 @@ public extension MNRequestProtocol {
     func send<T: Decodable>(
         _ responseType: T.Type,
         decoder: JSONDecoder = JSONDecoder(),
+        showError: Bool = true,
         completion: @escaping (Result<T, MNError>) -> Void
     ) {
-        MNNetClient.shared.send(self, responseType: responseType, completion: completion)
+        if showError {
+            // showError 为 true 时，内部处理错误弹窗，不对外回调错误
+            MNNetClient.shared.send(self, responseType: responseType) { result in
+                switch result {
+                case .success(let data):
+                    completion(.success(data))
+                case .failure(let error):
+                    // 显示错误弹窗
+                    MNErrorHandler.showError(error)
+                    // 不调用外部的 completion 回调
+                }
+            }
+        } else {
+            // showError 为 false 时，使用现有逻辑，正常对外回调
+            MNNetClient.shared.send(self, responseType: responseType, completion: completion)
+        }
     }
     
     /// 同步发送请求（不推荐在主线程使用）
-    func sendSync<T: Decodable>(
-        _ responseType: T.Type,
-        decoder: JSONDecoder = JSONDecoder()
-    ) -> Result<T, MNError> {
-        let semaphore = DispatchSemaphore(value: 0)
-        var result: Result<T, MNError> = .failure(.networkError("请求未完成"))
+    // func sendSync<T: Decodable>(
+    //     _ responseType: T.Type,
+    //     decoder: JSONDecoder = JSONDecoder()
+    // ) -> Result<T, MNError> {
+    //     let semaphore = DispatchSemaphore(value: 0)
+    //     var result: Result<T, MNError> = .failure(.networkError("请求未完成"))
         
-        self.send(responseType) { responseResult in
-            result = responseResult
-            semaphore.signal()
-        }
+    //     self.send(responseType) { responseResult in
+    //         result = responseResult
+    //         semaphore.signal()
+    //     }
         
-        semaphore.wait()
-        return result
-    }
+    //     semaphore.wait()
+    //     return result
+    // }
 }
 
 /// HTTP方法枚举（隐藏Moya细节）

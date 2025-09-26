@@ -44,10 +44,10 @@ class ViewController: UIViewController {
 
     @objc func buttonClick() {
         // 调接口
-        let loginRequest = LoginRequest(email: "admin@example.com", password: "admin123")
-//        let loginRequest = LoginRequest(email: "admin@examsdfple.com", password: "admin123444")
+//        let loginRequest = LoginRequest(email: "admin@example.com", password: "admin123")
+        let loginRequest = LoginRequest(email: "admin@examsdfple.com", password: "admin123444")
         print("22开始调接口")
-        loginRequest.send(LoginResponse.self) { result in
+        loginRequest.send(LoginResponse.self, showError: true) { result in
             switch result {
             case .success(let apiResponse):
                 print("我的登录成功")
