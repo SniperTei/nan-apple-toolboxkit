@@ -64,10 +64,10 @@ class ViewController: UIViewController {
         print("物品列表开始调接口")
         itemListRequest.send(ItemResponse.self) { result in
             switch result {
-            case .success(let apiResponse):
+            case .success(let response):
                 print("我的获取物品列表成功")
-                print("我的获取到物品列表: \(apiResponse.page)")
-                print("我的获取到物品列表数量: \(apiResponse.total ?? 0)")
+                print("我的获取到物品列表: \(response.page)")
+                print("我的获取到物品列表数量: \(response.total ?? 0)")
             case .failure(let error):
                 print("我的获取物品列表失败: \(error.localizedDescription)")
             }
@@ -76,22 +76,18 @@ class ViewController: UIViewController {
 
     @objc func createItemClick() {
         // 调接口
-//        let createItemRequest = ItemCreateRequest(title: "物品1", description: "物品1的描述", price: 100, owner_id: "1")
-//        print("创建物品开始调接口")
-//        createItemRequest.send(MyAPIResponse<ItemCreateResponse>.self) { result in
-//            switch result {
-//            case .success(let apiResponse):
-//                print("我的创建物品成功")
-//                print("响应状态码: \(apiResponse.statusCode)")
-//                print("响应消息: \(apiResponse.msg)")
-//                if let itemCreateResponse = apiResponse.data {
-//                    print("我的创建到物品: \(itemCreateResponse.title ?? "无")")
-//                    print("我的创建到物品ID: \(itemCreateResponse.id ?? 0)")
-//                }
-//            case .failure(let error):
-//                print("我的创建物品失败: \(error.localizedDescription)")
-//            }
-//        }
+        let createItemRequest = ItemCreateRequest(title: "物品1", description: "物品1的描述", price: 100, owner_id: "1")
+        print("创建物品开始调接口")
+        createItemRequest.send(ItemCreateResponse.self) { result in
+            switch result {
+            case .success(let response):
+                print("我的创建物品成功")
+                print("我的创建到物品: \(response.title ?? "无")")
+                print("我的创建到物品ID: \(response.id ?? 0)")
+            case .failure(let error):
+                print("我的创建物品失败: \(error.localizedDescription)")
+            }
+        }
     }
 
 }
