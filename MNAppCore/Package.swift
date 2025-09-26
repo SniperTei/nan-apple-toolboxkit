@@ -20,7 +20,9 @@ let package = Package(
         // 添加 Alamofire 依赖（用于网络请求）
         .package(url: "https://github.com/Alamofire/Alamofire.git", from: "5.9.0"),
         // 添加 Moya 依赖（网络请求抽象层，基于 Alamofire）
-        .package(url: "https://github.com/Moya/Moya.git", from: "15.0.0")
+        .package(url: "https://github.com/Moya/Moya.git", from: "15.0.0"),
+        // 添加 Toast 依赖（用于弹窗提示）
+        .package(url: "https://github.com/scalessec/Toast-Swift.git", from: "5.1.1"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -45,10 +47,15 @@ let package = Package(
             dependencies: [
                 // 网络模块依赖 Alamofire 和 Moya
                 .product(name: "Alamofire", package: "Alamofire"),
-                .product(name: "Moya", package: "Moya")
+                .product(name: "Moya", package: "Moya"),
+                // 网络模块依赖 Toast
+                .product(name: "Toast", package: "Toast-Swift"),
             ],
-            path: "Sources/MNNetKit"
-            // 移除这里的platforms参数，它只能在package级别定义
+            path: "Sources/MNNetKit",
+            // 添加 linkerSettings 链接 UIKit 框架
+            linkerSettings: [
+                .linkedFramework("UIKit")
+            ],
         ),
         .testTarget(
             name: "MNAppCoreTests",
