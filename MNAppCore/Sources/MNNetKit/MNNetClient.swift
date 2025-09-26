@@ -57,17 +57,36 @@ public final class MNNetClient: @unchecked Sendable {
         }
         
         // 发起请求并处理结果
-        core.request(target, modelType: MNResponse<T>.self) { result in
+        core.request(target, modelType: MNResponseModel<T>.self) { result in
             switch result {
             case .success(let response):
-                completion(.success(response.data))
+                // 添加调试信息
+                print("[调试] 响应code: \(response.code)")
+                print("[调试] isSuccess: \(response.isSuccess)")
+                print("[调试] data是否为空: \(response.data == nil)")
+                
+                // 更健壮的成功条件检查
+                if response.code == "000000" {
+                    if let data = response.data {
+                        completion(.success(data))
+                    } else {
+                        // 如果code是成功，但data为nil，仍然返回成功但data为空
+                        completion(.success(try! JSONDecoder().decode(T.self, from: Data())))
+                    }
+                } else {
+                    // 处理业务错误
+                    let errorCode = response.code
+                    let errorMessage = response.errorDescription ?? "请求失败"
+                    completion(.failure(.businessError(code: errorCode, msg: errorMessage)))
+                }
             case .failure(let error):
                 // 转换底层错误为MNError
                 let mnError: MNError
                 if let moyaError = error as? MoyaError {
                     switch moyaError {
                     case .statusCode(let response):
-                        mnError = .businessError(code: response.statusCode, message: "HTTP状态码错误")
+                        // 修复参数标签和类型：将 message 改为 msg，并将 Int 转换为 String
+                        mnError = .businessError(code: "\(response.statusCode)", msg: "HTTP状态码错误")
                     case .underlying(let error, _):
                         mnError = .networkError(error.localizedDescription)
                     default:

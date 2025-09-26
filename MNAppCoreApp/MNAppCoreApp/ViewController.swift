@@ -47,7 +47,7 @@ class ViewController: UIViewController {
 //        let loginRequest = LoginRequest(email: "admin@example.com", password: "admin123")
         let loginRequest = LoginRequest(email: "admin@examsdfple.com", password: "admin123444")
         print("22开始调接口")
-        loginRequest.send(APIResponse<LoginResponse>.self) { result in
+        loginRequest.send(MyAPIResponse<LoginResponse>.self) { result in
             switch result {
             case .success(let apiResponse):
                 print("我的登录成功")
@@ -62,12 +62,12 @@ class ViewController: UIViewController {
         // 调接口
         let itemListRequest = ItemRequest()
         print("物品列表开始调接口")
-        itemListRequest.send(APIResponse<ItemResponse>.self) { result in
+        itemListRequest.send(ItemResponse.self) { result in
             switch result {
             case .success(let apiResponse):
                 print("我的获取物品列表成功")
-                print("我的获取到物品列表: \(apiResponse.data)")
-                print("我的获取到物品列表数量: \(apiResponse.data.total ?? 0)")
+                print("我的获取到物品列表: \(apiResponse.page)")
+                print("我的获取到物品列表数量: \(apiResponse.total ?? 0)")
             case .failure(let error):
                 print("我的获取物品列表失败: \(error.localizedDescription)")
             }
@@ -76,22 +76,22 @@ class ViewController: UIViewController {
 
     @objc func createItemClick() {
         // 调接口
-        let createItemRequest = ItemCreateRequest(title: "物品1", description: "物品1的描述", price: 100, owner_id: "1")
-        print("创建物品开始调接口")
-        createItemRequest.send(APIResponse<ItemCreateResponse>.self) { result in
-            switch result {
-            case .success(let apiResponse):
-                print("我的创建物品成功")
-                print("响应状态码: \(apiResponse.statusCode)")
-                print("响应消息: \(apiResponse.msg)")
-                if let itemCreateResponse = apiResponse.data {
-                    print("我的创建到物品: \(itemCreateResponse.title ?? "无")")
-                    print("我的创建到物品ID: \(itemCreateResponse.id ?? 0)")
-                }
-            case .failure(let error):
-                print("我的创建物品失败: \(error.localizedDescription)")
-            }
-        }
+//        let createItemRequest = ItemCreateRequest(title: "物品1", description: "物品1的描述", price: 100, owner_id: "1")
+//        print("创建物品开始调接口")
+//        createItemRequest.send(MyAPIResponse<ItemCreateResponse>.self) { result in
+//            switch result {
+//            case .success(let apiResponse):
+//                print("我的创建物品成功")
+//                print("响应状态码: \(apiResponse.statusCode)")
+//                print("响应消息: \(apiResponse.msg)")
+//                if let itemCreateResponse = apiResponse.data {
+//                    print("我的创建到物品: \(itemCreateResponse.title ?? "无")")
+//                    print("我的创建到物品ID: \(itemCreateResponse.id ?? 0)")
+//                }
+//            case .failure(let error):
+//                print("我的创建物品失败: \(error.localizedDescription)")
+//            }
+//        }
     }
 
 }

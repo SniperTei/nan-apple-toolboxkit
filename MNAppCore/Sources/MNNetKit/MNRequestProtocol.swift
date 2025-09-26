@@ -1,6 +1,5 @@
-// 删除Combine导入
-import Foundation
 import Moya
+import Foundation
 
 /// 抽象请求协议，调用方通过实现此协议定义接口
 public protocol MNRequestProtocol {

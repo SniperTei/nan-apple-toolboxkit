@@ -8,7 +8,7 @@
 import Foundation
 
 
-struct APIResponse<T: Decodable>: Decodable {
+struct MyAPIResponse<T: Decodable>: Decodable {
     let code: String
     let statusCode: Int
     let data: T
