@@ -21,6 +21,8 @@ public struct MNEnvironment {
     // API 配置
     public let apiBaseURL: String
     public let apiKey: String?
+    // 添加超时时间配置
+    public let timeoutInterval: TimeInterval
     
     // 日志配置
     public let loggingEnabled: Bool
@@ -42,6 +44,7 @@ public struct MNEnvironment {
         buildNumber: String,
         apiBaseURL: String,
         apiKey: String? = nil,
+        timeoutInterval: TimeInterval = 30.0, // 添加默认值
         loggingEnabled: Bool = true,
         debugMode: Bool = false,
         pushEnabled: Bool = true,
@@ -55,6 +58,7 @@ public struct MNEnvironment {
         self.buildNumber = buildNumber
         self.apiBaseURL = apiBaseURL
         self.apiKey = apiKey
+        self.timeoutInterval = timeoutInterval // 初始化新属性
         self.loggingEnabled = loggingEnabled
         self.debugMode = debugMode
         self.pushEnabled = pushEnabled
@@ -62,7 +66,7 @@ public struct MNEnvironment {
         self.analyticsEnabled = analyticsEnabled
     }
     
-    /// 开发环境配置
+    // 还需要更新所有便利初始化方法以包含timeoutInterval参数
     public static func development(appId: String, appName: String) -> MNEnvironment {
         MNEnvironment(
             type: .dev,
@@ -71,13 +75,13 @@ public struct MNEnvironment {
             appVersion: "1.0.0-dev",
             buildNumber: "1",
             apiBaseURL: "https://dev-api.example.com",
+            timeoutInterval: 30.0, // 添加默认值
             loggingEnabled: true,
             debugMode: true,
             pushEnvironment: "sandbox"
         )
     }
     
-    /// 测试环境配置
     public static func testing(appId: String, appName: String) -> MNEnvironment {
         MNEnvironment(
             type: .test,
@@ -86,13 +90,13 @@ public struct MNEnvironment {
             appVersion: "1.0.0-test",
             buildNumber: "100",
             apiBaseURL: "https://test-api.example.com",
+            timeoutInterval: 30.0, // 添加默认值
             loggingEnabled: true,
             debugMode: false,
             pushEnvironment: "sandbox"
         )
     }
     
-    /// 生产环境配置
     public static func production(appId: String, appName: String) -> MNEnvironment {
         MNEnvironment(
             type: .prod,
@@ -101,13 +105,14 @@ public struct MNEnvironment {
             appVersion: "1.0.0",
             buildNumber: "1000",
             apiBaseURL: "https://api.example.com",
+            timeoutInterval: 30.0, // 添加默认值
             loggingEnabled: false,
             debugMode: false,
             pushEnvironment: "production"
         )
     }
     
-    /// 从 Info.plist 加载环境配置
+    // 同时更新fromInfoPlist方法
     public static func fromInfoPlist() -> MNEnvironment? {
         guard let infoDict = Bundle.main.infoDictionary else {
             return nil
@@ -130,14 +135,18 @@ public struct MNEnvironment {
         
         // 添加 type 参数到 fromInfoPlist() 方法中的 MNEnvironment 初始化
         
+        // 尝试从infoDict获取timeoutInterval
+        let timeoutInterval = (infoDict["TIMEOUT_INTERVAL"] as? Double) ?? 30.0
+        
         return MNEnvironment(
-            type: .dev, // 或者根据需要选择默认类型
+            type: .dev,
             appId: appId,
             appName: appName,
             appVersion: appVersion,
             buildNumber: buildNumber,
             apiBaseURL: apiBaseURL,
-            apiKey: apiKey
+            apiKey: apiKey,
+            timeoutInterval: timeoutInterval // 添加到初始化中
         )
     }
 }

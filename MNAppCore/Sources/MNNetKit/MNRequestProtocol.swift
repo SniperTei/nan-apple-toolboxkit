@@ -40,8 +40,9 @@ public extension MNRequestProtocol {
                     completion(.success(data))
                 case .failure(let error):
                     // 显示错误弹窗
-                    MNErrorHandler.showError(error)
+                    let errorHandler = MNNetConfig.shared.errorHandler
                     // 不调用外部的 completion 回调
+                    errorHandler.showError(error)
                 }
             }
         } else {

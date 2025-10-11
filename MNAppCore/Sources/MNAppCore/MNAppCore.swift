@@ -38,21 +38,20 @@ class MNAppCore: @unchecked Sendable {
             return
         }
         
+        let config = MNNetConfig.shared
+        config.baseURL = baseURL
+        config.timeoutInterval = configuration.timeoutInterval
+        config.enableLogging = configuration.debugMode
+
         // 简化版本检查，只针对iOS平台
         if #available(iOS 13.0, *) {
             let netClient = MNNetClient.shared
             // 配置网络核心模块
-            netClient.configure(baseURL: baseURL, timeoutInterval: 30.0)
+            netClient.configure(baseURL: baseURL, timeoutInterval: configuration.timeoutInterval)
             
             // 根据环境设置Mock模式
             if configuration.debugMode {
                 netClient.setMockMode(.disabled) // 开发环境可以根据需要设置为.global或.custom
-            }
-            
-            // 如果环境配置了API Key，可以设置全局认证插件或其他配置
-            if let apiKey = configuration.apiKey {
-                // 这里可以存储API Key供后续使用
-                UserDefaults.standard.set(apiKey, forKey: "AppApiKey")
             }
             
             MNDebug("MNAppCore", "网络系统已配置，基础URL: \(configuration.apiBaseURL)")
