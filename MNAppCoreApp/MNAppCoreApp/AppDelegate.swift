@@ -32,8 +32,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //        DDLogError("Error")
         
         // 日志
-        let logManager = MNLoggerCore.shared
-        let path = logManager.getLogFileDirectory()
+        // let logManager = MNLoggerCore.shared
+        // let path = logManager.getLogFileDirectory()
 
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
         let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
@@ -46,14 +46,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             appVersion: version,
             buildNumber: buildNumber,
             apiBaseURL: "http://localhost:8000",
+//            apiBaseURL: "http://47.92.139.154:27050",
             apiKey: nil,
             debugMode: true
         )
-        configureNetwork(with: environment)
+        // configureNetwork(with: environment)
+        MNAppCore.shared.configure(with: environment)
+        
+        MNNetConfig.shared.loadingHandler = DefaultLoading()
         
         MNInfo("info", "=================Start MNAppCoreApp===============")
         MNDebug("debug", "hello debug")
-        MNInfo("info", "hello info : \(path)")
         MNWarn("warn", "hello warn")
         
         return true
@@ -65,20 +68,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             MNDebug("MNAppCore", "无效的API基础URL: \(configuration.apiBaseURL)")
             return
         }
+
+        MNNetConfig.shared.baseURL = baseURL
+        MNNetConfig.shared.timeoutInterval = 30.0
+        MNNetConfig.shared.loadingHandler = DefaultLoading()
         
-        // 配置网络核心模块
-        MNNetClient.shared.configure(baseURL: baseURL, timeoutInterval: 30.0)
-        
-        // 根据环境设置Mock模式
-        if configuration.debugMode {
-            MNNetClient.shared.setMockMode(.disabled) // 开发环境可以设置为.global或.custom
-        }
-        
-        // 如果环境配置了API Key，可以设置全局认证插件或其他配置
-        if let apiKey = configuration.apiKey {
-            // 这里可以存储API Key供后续使用
-            UserDefaults.standard.set(apiKey, forKey: "AppApiKey")
-        }
         
         MNDebug("MNAppCore", "网络系统已配置，基础URL: \(configuration.apiBaseURL)")
     }
