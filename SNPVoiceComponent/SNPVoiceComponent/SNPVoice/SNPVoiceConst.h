@@ -31,4 +31,7 @@ FOUNDATION_EXPORT NSString * const SNPVoiceCodeRecognizerUnavailable;
 /// 识别：识别过程出错
 FOUNDATION_EXPORT NSString * const SNPVoiceCodeRecognitionError;
 
+/// 识别：无有效输入音频路由（蓝牙切换中、通话占用等瞬态，装 tap 前防御，避免 0/0 格式闪退）
+FOUNDATION_EXPORT NSString * const SNPVoiceCodeNoInputRoute;
+
 #endif /* SNPVoiceConst_h */

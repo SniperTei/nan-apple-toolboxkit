@@ -35,7 +35,7 @@
     [self.view addSubview:self.rateSlider];
     top += 40;
 
-    NSArray *titles = @[@"开始播报", @"取消播报", @"同时播报3句", @"开始识别", @"停止识别", @"打断组合测试", @"清空控制台"];
+    NSArray *titles = @[@"开始播报", @"取消播报", @"同时播报3句", @"开始识别", @"停止识别", @"识别(仅最终结果)", @"识别(静音自动停止)", @"打断组合测试", @"清空控制台"];
     for (NSUInteger i = 0; i < titles.count; i++) {
         UIButton *button = [UIButton buttonWithType:UIButtonTypeSystem];
         button.tag = 100 + (int)i;
@@ -89,8 +89,10 @@
             }];
             break;
         }
-        case 103: { // 开始识别
+        case 103: { // 开始识别（默认：中间结果 + 手动停止）
             SNPVoiceManager *voice = [SNPVoiceManager sharedManager];
+            voice.recognizePartialResults = YES;
+            voice.recognizeAutoStopEnabled = NO;
             [voice startRecognize:^(NSDictionary<NSString *, id> *result) {
                 [self log:@"recognize" result:result];
             }];
@@ -98,6 +100,25 @@
         }
         case 104: { // 停止识别
             [[SNPVoiceManager sharedManager] stopRecognize];
+            break;
+        }
+        case 107: { // 识别：关闭中间结果，仅最终结果回调一次
+            SNPVoiceManager *voice = [SNPVoiceManager sharedManager];
+            voice.recognizePartialResults = NO;
+            voice.recognizeAutoStopEnabled = NO;
+            [voice startRecognize:^(NSDictionary<NSString *, id> *result) {
+                [self log:@"recognize-final-only" result:result];
+            }];
+            break;
+        }
+        case 108: { // 识别：静音 2 秒自动停止
+            SNPVoiceManager *voice = [SNPVoiceManager sharedManager];
+            voice.recognizePartialResults = YES;
+            voice.recognizeAutoStopEnabled = YES;
+            voice.recognizeAutoStopSilenceSeconds = 2.0;
+            [voice startRecognize:^(NSDictionary<NSString *, id> *result) {
+                [self log:@"recognize-auto-stop" result:result];
+            }];
             break;
         }
         case 105: { // 打断组合测试：speak1、speak2、cancelSpeak，然后 speak3

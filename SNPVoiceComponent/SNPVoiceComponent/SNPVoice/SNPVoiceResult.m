@@ -16,6 +16,7 @@ NSString * const SNPVoiceCodeSpeakTextEmpty        = @"100001";
 NSString * const SNPVoiceCodePermissionDenied      = @"200001";
 NSString * const SNPVoiceCodeRecognizerUnavailable = @"200002";
 NSString * const SNPVoiceCodeRecognitionError      = @"200003";
+NSString * const SNPVoiceCodeNoInputRoute          = @"200004";
 
 @implementation SNPVoiceResult
 

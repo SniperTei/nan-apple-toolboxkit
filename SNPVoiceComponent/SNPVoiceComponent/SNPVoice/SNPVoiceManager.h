@@ -41,10 +41,25 @@ FOUNDATION_EXPORT float const SNPVoiceDefaultRate;
 
 #pragma mark - 语音识别
 
-/// 开始识别，识别结束后（停止/出错/超时）回调，data: {"text": 识别文本}
+/// 是否回调中间识别结果（默认 YES）。
+/// YES 时识别过程中会多次回调：data: {"text": 中间文本, "final": NO}，结束时回调最终结果 final = YES；
+/// NO 时仅在结束时回调一次最终结果。
+@property (nonatomic, assign) BOOL recognizePartialResults;
+
+/// 是否静音自动停止（默认 NO，即手动调用 stopRecognize 停止）。
+/// YES 时，连续 recognizeAutoStopSilenceSeconds 秒没有检测到说话（含从头到尾没说话的情况），
+/// 会自动停止识别并回调最终结果。说话的判定综合两个信号：输入音频能量、识别中间结果有新文本。
+@property (nonatomic, assign) BOOL recognizeAutoStopEnabled;
+
+/// 静音自动停止的静音时长（秒，默认 2.0，仅 recognizeAutoStopEnabled 为 YES 时生效）
+@property (nonatomic, assign) NSTimeInterval recognizeAutoStopSilenceSeconds;
+
+/// 开始识别，回调 data: {"text": 识别文本, "final": 是否最终结果}。
+/// recognizePartialResults 为 YES 时会多次回调中间结果（final = NO），最终结果 final = YES；
+/// 为 NO 时仅在识别结束（停止/出错/超时）时回调一次。
 - (void)startRecognize:(nullable SNPVoiceCallback)completion;
 
-/// 停止识别，停止后会触发 startRecognize 的回调并携带最终结果
+/// 停止识别（手动停止 / 静音自动停止均会触发 startRecognize 的回调并携带最终结果）
 - (void)stopRecognize;
 
 /// 当前是否正在识别
